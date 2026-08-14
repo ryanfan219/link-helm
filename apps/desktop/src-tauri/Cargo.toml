@@ -1,0 +1,25 @@
+[package]
+name = "lynko-desktop"
+version = "0.1.0"
+edition = "2021"
+description = "Lynko cross-browser identity router desktop shell"
+
+[lib]
+name = "lynko_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+url = "2"
+
+router-model = { path = "../../../crates/router-model" }
+router-core = { path = "../../../crates/router-core" }
+browser-adapters = { path = "../../../crates/browser-adapters" }
+platform-api = { path = "../../../crates/platform-api" }
+platform-macos = { path = "../../../crates/platform-macos" }
+config-store = { path = "../../../crates/config-store" }

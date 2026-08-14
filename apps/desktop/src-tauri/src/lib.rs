@@ -1,0 +1,99 @@
+mod commands;
+mod diagnostics;
+mod routing;
+mod state;
+mod tray;
+
+use config_store::ConfigStore;
+use tauri::Manager;
+
+use commands::AppState;
+use state::DesktopService;
+
+fn should_hide_settings(label: &str, focused: bool) -> bool {
+    label == "settings" && focused
+}
+
+fn start_foreground_browser_observer(app: tauri::AppHandle) {
+    std::thread::spawn(move || loop {
+        if let Some(state) = app.try_state::<AppState>() {
+            if let Ok(mut service) = state.service.lock() {
+                service.observe_foreground_browser();
+            }
+        }
+        std::thread::sleep(std::time::Duration::from_millis(400));
+    });
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    let mut app = tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![
+            commands::get_state,
+            commands::set_default_browser,
+            commands::open_default_browser_settings,
+            commands::open_accessibility_settings,
+            commands::choose_source_application,
+            commands::scan_browsers,
+            commands::save_config,
+            commands::export_config,
+            commands::preview_import_config,
+            commands::import_config,
+            commands::preview_route,
+            commands::test_open,
+            commands::set_paused,
+            commands::set_ask_next,
+            commands::clear_diagnostics,
+            commands::set_diagnostics_limit,
+            commands::get_selector_state,
+            commands::choose_pending,
+            commands::cancel_pending,
+        ])
+        .setup(|app| {
+            let data_dir = app.path().app_data_dir()?;
+            let mut service = DesktopService::new(ConfigStore::new(data_dir.join("config.json")));
+            service.scan_browsers();
+            app.manage(AppState {
+                service: std::sync::Mutex::new(service),
+            });
+            tray::setup(app)?;
+            start_foreground_browser_observer(app.handle().clone());
+            Ok(())
+        })
+        .on_window_event(|window, event| {
+            if window.label() == "settings" {
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    if should_hide_settings(window.label(), window.is_focused().unwrap_or(false)) {
+                        let _ = window.hide();
+                    }
+                }
+            }
+        })
+        .build(tauri::generate_context!())
+        .expect("error while building Lynko");
+
+    #[cfg(target_os = "macos")]
+    app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
+    app.run(|app, event| {
+        #[cfg(target_os = "macos")]
+        if let tauri::RunEvent::Opened { urls } = event {
+            for url in urls {
+                routing::handle_opened_url(app, url);
+            }
+        }
+    });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::should_hide_settings;
+
+    #[test]
+    fn only_a_focused_settings_close_request_hides_settings() {
+        assert!(should_hide_settings("settings", true));
+        assert!(!should_hide_settings("settings", false));
+        assert!(!should_hide_settings("selector", true));
+    }
+}

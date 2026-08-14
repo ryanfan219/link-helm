@@ -1,0 +1,29 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/router-model",
+  "crates/router-core",
+  "crates/browser-adapters",
+  "crates/platform-api",
+  "crates/platform-macos",
+  "crates/config-store",
+  "apps/desktop/src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+url = "2"
+idna = "1"
+
+router-model = { path = "crates/router-model" }
+router-core = { path = "crates/router-core" }
+browser-adapters = { path = "crates/browser-adapters" }
+platform-api = { path = "crates/platform-api" }
+config-store = { path = "crates/config-store" }

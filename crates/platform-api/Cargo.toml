@@ -1,0 +1,10 @@
+[package]
+name = "platform-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+router-model.workspace = true
+url.workspace = true
+thiserror.workspace = true

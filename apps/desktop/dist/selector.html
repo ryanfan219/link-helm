@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Choose a browser profile</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="selector.js" defer></script>
+  </head>
+  <body class="selector-body">
+    <main class="selector-shell">
+      <header><h1>Open link with</h1><p id="selector-domain">Loading link...</p></header>
+      <div id="selector-profiles" class="selector-profiles" role="listbox" aria-label="Browser profiles"></div>
+      <div id="selector-error" class="selector-error" role="alert"></div>
+      <footer><button id="selector-cancel">Cancel</button></footer>
+    </main>
+  </body>
+</html>

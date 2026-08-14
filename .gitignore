@@ -1,0 +1,39 @@
+# Rust build artifacts
+/target/
+**/target/
+**/*.rs.bk
+*.pdb
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Local environment and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# AI-generated planning and design artifacts
+.ai/
+.agents/
+.claude/
+.codex/
+.cursor/
+.superpowers/
+docs/ai/
+docs/plans/
+docs/specs/
+docs/superpowers/
+*-plan.md
+*-plans.md
+*-design.md
+*-spec.md
+*-specs.md
