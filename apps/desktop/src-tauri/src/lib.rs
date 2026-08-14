@@ -1,5 +1,6 @@
 mod commands;
 mod diagnostics;
+mod preferences;
 mod routing;
 mod state;
 mod tray;
@@ -45,18 +46,26 @@ pub fn run() {
             commands::set_ask_next,
             commands::clear_diagnostics,
             commands::set_diagnostics_limit,
+            commands::set_locale,
             commands::get_selector_state,
             commands::choose_pending,
             commands::cancel_pending,
         ])
         .setup(|app| {
             let data_dir = app.path().app_data_dir()?;
+            let preferences =
+                preferences::PreferencesStore::load(data_dir.join("preferences.json"));
+            let locale = preferences.locale();
             let mut service = DesktopService::new(ConfigStore::new(data_dir.join("config.json")));
             service.scan_browsers();
             app.manage(AppState {
                 service: std::sync::Mutex::new(service),
+                preferences: std::sync::Mutex::new(preferences),
             });
-            tray::setup(app)?;
+            tray::setup(app, locale)?;
+            if let Some(window) = app.get_webview_window("settings") {
+                window.set_title(locale.settings_title())?;
+            }
             start_foreground_browser_observer(app.handle().clone());
             Ok(())
         })

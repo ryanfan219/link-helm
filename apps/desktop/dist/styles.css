@@ -61,6 +61,7 @@ input[type="checkbox"] { width:18px; height:18px; accent-color:var(--accent); }
 .setting-action { display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
 .setting-buttons { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
 .diagnostic-limit-action input { width:110px; }
+.language-action select { width:160px; }
 .test-panel { margin-top:20px; padding:18px; }
 .form-grid { display:grid; gap:14px; }
 .test-grid { grid-template-columns:1fr 1.35fr auto; align-items:end; margin-top:16px; }

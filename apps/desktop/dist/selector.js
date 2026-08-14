@@ -1,6 +1,7 @@
 const invoke = window.__TAURI_INTERNALS__?.invoke;
 let pendingId = null;
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+const t = (key, values) => window.LynkoI18n.t(key, values);
 
 function closeWindow() {
   window.close();
@@ -9,6 +10,7 @@ function closeWindow() {
 async function initialize() {
   try {
     const state = await invoke("get_selector_state");
+    await window.LynkoI18n.load(state.locale);
     const pending = state.pending[0];
     if (!pending) {
       pendingId = null;
@@ -17,7 +19,7 @@ async function initialize() {
     pendingId = pending.id;
     document.getElementById("selector-domain").textContent = pending.domain;
     const profiles = state.browsers.flatMap((browser) => browser.profiles.map((profile) => ({browser, profile})));
-    document.getElementById("selector-profiles").innerHTML = profiles.map(({browser, profile}, index) => `<button class="selector-profile" data-browser="${escapeHtml(browser.descriptor.id)}" data-profile="${escapeHtml(profile.profile_id)}" role="option"><strong>${escapeHtml(browser.descriptor.display_name)}</strong><span>${escapeHtml(profile.display_name)}</span><small>${escapeHtml(profile.profile_id)}</small><kbd>${index + 1}</kbd></button>`).join("") || '<div class="empty">No browser profiles are available.</div>';
+    document.getElementById("selector-profiles").innerHTML = profiles.map(({browser, profile}, index) => `<button class="selector-profile" data-browser="${escapeHtml(browser.descriptor.id)}" data-profile="${escapeHtml(profile.profile_id)}" role="option"><strong>${escapeHtml(browser.descriptor.display_name)}</strong><span>${escapeHtml(profile.display_name)}</span><small>${escapeHtml(profile.profile_id)}</small><kbd>${index + 1}</kbd></button>`).join("") || `<div class="empty">${escapeHtml(t("selector.empty"))}</div>`;
     document.querySelectorAll(".selector-profile").forEach((button, index) => {
       button.addEventListener("click", () => choose(button));
       if (index === 0) button.focus();

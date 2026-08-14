@@ -3,13 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lynko Settings</title>
+    <title data-i18n="app.settingsTitle">Lynko Settings</title>
     <link rel="stylesheet" href="styles.css" />
+    <script src="i18n.js" defer></script>
     <script src="app.js" defer></script>
   </head>
   <body>
     <div class="app-shell">
-      <aside class="sidebar" aria-label="Settings sections">
+      <aside class="sidebar" aria-label="Settings sections" data-i18n-aria-label="app.settingsSections">
         <div class="brand"><img src="app-icon.svg" alt="" /><span>Lynko</span></div>
         <nav id="nav">
           <button class="nav-item active" data-page="general" data-i18n="nav.general">General</button>
@@ -17,7 +18,7 @@
           <button class="nav-item" data-page="rules" data-i18n="nav.rules">Rules</button>
           <button class="nav-item" data-page="diagnostics" data-i18n="nav.diagnostics">Diagnostics</button>
         </nav>
-        <div class="sidebar-status"><span id="routing-dot" class="status-dot"></span><span id="routing-label">Routing active</span></div>
+        <div class="sidebar-status"><span id="routing-dot" class="status-dot"></span><span id="routing-label" data-i18n="status.routingActive">Routing active</span></div>
       </aside>
 
       <main class="content">
@@ -28,16 +29,25 @@
           <div id="config-error" class="inline-warning" role="alert" hidden></div>
           <div class="settings-group">
             <div class="setting-row">
+              <div><h2 data-i18n="general.language">Language</h2><p data-i18n="general.languageHelp">Choose the language used by Lynko.</p></div>
+              <div class="setting-action language-action">
+                <select id="language" aria-label="Language" data-i18n-aria-label="general.language">
+                  <option value="en">English</option>
+                  <option value="zh-CN">简体中文</option>
+                </select>
+              </div>
+            </div>
+            <div class="setting-row">
               <div><h2 data-i18n="general.defaultBrowser">Default browser</h2><p data-i18n="general.defaultBrowserHelp">Lynko must be selected in macOS to receive external web links.</p></div>
-              <div class="setting-action"><span id="default-status" class="badge neutral">Checking...</span><div class="setting-buttons"><button id="set-default" class="primary" data-i18n="action.setDefault">Set as Default</button><button id="open-default-settings" data-i18n="action.openDefaultSettings">System Settings...</button></div></div>
+              <div class="setting-action"><span id="default-status" class="badge neutral" data-i18n="status.checking">Checking...</span><div class="setting-buttons"><button id="set-default" class="primary" data-i18n="action.setDefault">Set as Default</button><button id="open-default-settings" data-i18n="action.openDefaultSettings">System Settings...</button></div></div>
             </div>
             <div class="setting-row">
               <div><h2 data-i18n="general.accessibility">Accessibility</h2><p data-i18n="general.accessibilityHelp">Required for reliable foreground browser and window tracking.</p></div>
-              <div class="setting-action"><span id="accessibility-status" class="badge neutral">Checking...</span><button id="open-accessibility">Open Settings</button></div>
+              <div class="setting-action"><span id="accessibility-status" class="badge neutral" data-i18n="status.checking">Checking...</span><button id="open-accessibility" data-i18n="action.openSettings">Open Settings</button></div>
             </div>
             <div class="setting-row">
               <div><h2 data-i18n="general.diagnosticsRetention">Diagnostics retention</h2><p data-i18n="general.diagnosticsRetentionHelp">Maximum number of recent diagnostic records to keep.</p></div>
-              <div class="setting-action diagnostic-limit-action"><input id="diagnostics-limit" type="number" min="1" max="100000" step="1" inputmode="numeric" aria-label="Diagnostics retention limit" /><button id="save-diagnostics-limit" type="button" data-i18n="action.save">Save</button></div>
+              <div class="setting-action diagnostic-limit-action"><input id="diagnostics-limit" type="number" min="1" max="100000" step="1" inputmode="numeric" aria-label="Diagnostics retention limit" data-i18n-aria-label="general.diagnosticsRetentionLimit" /><button id="save-diagnostics-limit" type="button" data-i18n="action.save">Save</button></div>
             </div>
             <label class="setting-row control-row">
               <span><strong data-i18n="general.pause">Pause routing</strong><small data-i18n="general.pauseHelp">Incoming links will ask for a destination.</small></span>
@@ -59,7 +69,7 @@
           <div class="config-transfer">
             <div><h2 data-i18n="config.title">Configuration transfer</h2><p data-i18n="config.help">Export rules as JSON, or preview imported JSON before replacing the current configuration.</p></div>
             <label><span data-i18n="config.json">Configuration JSON</span><textarea id="config-json" rows="8" spellcheck="false"></textarea></label>
-            <output id="config-preview" aria-live="polite">No import preview.</output>
+            <output id="config-preview" aria-live="polite" data-i18n="config.noPreview">No import preview.</output>
             <div class="transfer-actions">
               <button id="export-config" type="button" data-i18n="action.export">Export</button>
               <button id="preview-import" type="button" data-i18n="action.previewImport">Preview import</button>
@@ -80,7 +90,7 @@
             <label><span data-i18n="field.sourceApp">Source app bundle ID</span><input id="preview-source" value="com.apple.mail" /></label>
             <label><span data-i18n="field.url">URL</span><input id="preview-url" type="url" value="https://example.com" /></label>
             <button id="preview-button" data-i18n="action.preview">Preview</button>
-            <output id="preview-result">No preview yet.</output>
+            <output id="preview-result" data-i18n="rules.noPreview">No preview yet.</output>
           </div>
           <div class="rules-workspace">
             <section class="rule-list-panel">
@@ -90,22 +100,22 @@
           </div>
           <dialog id="rule-dialog" class="rule-dialog" aria-labelledby="editor-title">
             <form id="rule-form" class="rule-editor">
-              <div class="editor-heading"><h2 id="editor-title" data-i18n="rules.newRule">New rule</h2><div class="dialog-heading-actions"><label class="inline-check"><input id="rule-enabled" type="checkbox" checked /><span data-i18n="field.enabled">Enabled</span></label><button id="close-rule-dialog" class="icon-button" type="button" aria-label="Close" title="Close">&times;</button></div></div>
+              <div class="editor-heading"><h2 id="editor-title" data-i18n="rules.newRule">New rule</h2><div class="dialog-heading-actions"><label class="inline-check"><input id="rule-enabled" type="checkbox" checked /><span data-i18n="field.enabled">Enabled</span></label><button id="close-rule-dialog" class="icon-button" type="button" aria-label="Close" title="Close" data-i18n-aria-label="action.close" data-i18n-title="action.close">&times;</button></div></div>
               <input id="rule-id" type="hidden" />
-              <label class="rule-name-field"><span data-i18n="field.ruleName">Rule name</span><input id="rule-name" required maxlength="120" placeholder="DingTalk links" /></label>
+              <label class="rule-name-field"><span data-i18n="field.ruleName">Rule name</span><input id="rule-name" required maxlength="120" placeholder="DingTalk links" data-i18n-placeholder="placeholder.ruleName" /></label>
               <fieldset><legend data-i18n="rules.match">Match</legend><div class="form-grid two-col">
-                <div class="source-app-field"><label><span data-i18n="field.sourceAppOptional">Source apps (optional)</span><textarea id="rule-source" rows="2" readonly placeholder="Any application"></textarea></label><div class="source-app-actions"><button id="choose-source-app" type="button" data-i18n="action.chooseApp">Choose App...</button><button id="clear-source-app" type="button" data-i18n="action.clearApp">Clear</button></div></div>
+                <div class="source-app-field"><label><span data-i18n="field.sourceAppOptional">Source apps (optional)</span><textarea id="rule-source" rows="2" readonly placeholder="Any application" data-i18n-placeholder="placeholder.anyApplication"></textarea></label><div class="source-app-actions"><button id="choose-source-app" type="button" data-i18n="action.chooseApp">Choose App...</button><button id="clear-source-app" type="button" data-i18n="action.clearApp">Clear</button></div></div>
                 <label><span data-i18n="field.domainOptional">Domains (optional)</span><textarea id="rule-domain" rows="2" placeholder="*.example.com"></textarea></label>
               </div></fieldset>
               <fieldset><legend data-i18n="rules.destination">Destination</legend><div class="form-grid two-col">
-                <label><span data-i18n="field.targetMode">Target mode</span><select id="rule-mode"><option value="specified_profile">Specified profile</option><option value="active_in_browser">Active profile in browser</option><option value="globally_active">Globally active profile</option><option value="ask">Always ask</option></select></label>
+                <label><span data-i18n="field.targetMode">Target mode</span><select id="rule-mode"><option value="specified_profile" data-i18n="option.mode.specifiedProfile">Specified profile</option><option value="active_in_browser" data-i18n="option.mode.activeInBrowser">Active profile in browser</option><option value="globally_active" data-i18n="option.mode.globallyActive">Globally active profile</option><option value="ask" data-i18n="option.mode.ask">Always ask</option></select></label>
                 <label id="rule-profile-label"><span data-i18n="field.profile">Profile</span><select id="rule-profile"></select></label>
                 <label id="rule-browser-label" hidden><span data-i18n="field.browser">Browser</span><select id="rule-browser"></select></label>
               </div></fieldset>
               <fieldset id="policy-fields"><legend data-i18n="rules.policy">Policy</legend><div class="form-grid three-col">
-                <label><span data-i18n="field.enforcement">Enforcement</span><select id="rule-enforcement"><option value="prefer">Prefer</option><option value="force">Force</option></select></label>
-                <label><span data-i18n="field.fallback">Fallback</span><select id="rule-fallback"><option value="none">None</option><option value="same_browser">Same browser</option><option value="any_active_browser">Any active browser</option></select></label>
-                <label><span data-i18n="field.unavailable">When unavailable</span><select id="rule-unavailable"><option value="ask">Ask</option><option value="open_target_profile">Open target profile</option><option value="create_target_window">Create target window</option><option value="fail">Fail</option></select></label>
+                <label><span data-i18n="field.enforcement">Enforcement</span><select id="rule-enforcement"><option value="prefer" data-i18n="option.enforcement.prefer">Prefer</option><option value="force" data-i18n="option.enforcement.force">Force</option></select></label>
+                <label><span data-i18n="field.fallback">Fallback</span><select id="rule-fallback"><option value="none" data-i18n="option.fallback.none">None</option><option value="same_browser" data-i18n="option.fallback.sameBrowser">Same browser</option><option value="any_active_browser" data-i18n="option.fallback.anyActiveBrowser">Any active browser</option></select></label>
+                <label><span data-i18n="field.unavailable">When unavailable</span><select id="rule-unavailable"><option value="ask" data-i18n="option.unavailable.ask">Ask</option><option value="open_target_profile" data-i18n="option.unavailable.openTargetProfile">Open target profile</option><option value="create_target_window" data-i18n="option.unavailable.createTargetWindow">Create target window</option><option value="fail" data-i18n="option.unavailable.fail">Fail</option></select></label>
               </div></fieldset>
               <div class="editor-actions"><button id="delete-rule" type="button" class="danger" data-i18n="action.delete">Delete</button><div class="editor-primary-actions"><button id="cancel-rule-dialog" type="button" data-i18n="action.cancel">Cancel</button><button id="save-rule" type="submit" class="primary" data-i18n="action.createRule">Create rule</button></div></div>
             </form>

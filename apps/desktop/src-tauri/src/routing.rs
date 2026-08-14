@@ -1,17 +1,29 @@
 use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 
 use crate::commands::AppState;
+use crate::preferences::AppLocale;
 use crate::state::RouteDisposition;
 
 pub fn show_selector(app: &AppHandle) -> tauri::Result<()> {
+    let locale = app
+        .try_state::<AppState>()
+        .and_then(|state| {
+            state
+                .preferences
+                .lock()
+                .ok()
+                .map(|preferences| preferences.locale())
+        })
+        .unwrap_or(AppLocale::English);
     if let Some(window) = app.get_webview_window("selector") {
+        window.set_title(locale.selector_title())?;
         window.show()?;
         window.set_focus()?;
         window.eval("window.location.reload()")?;
         return Ok(());
     }
     WebviewWindowBuilder::new(app, "selector", WebviewUrl::App("selector.html".into()))
-        .title("Choose a browser profile")
+        .title(locale.selector_title())
         .inner_size(520.0, 430.0)
         .min_inner_size(420.0, 320.0)
         .resizable(true)

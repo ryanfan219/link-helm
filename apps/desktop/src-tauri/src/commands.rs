@@ -5,15 +5,17 @@ use router_model::browser::OpenDisposition;
 use router_model::config::RouterConfig;
 use router_model::routing::RouteDecision;
 use serde::Serialize;
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager, State};
 
 use crate::diagnostics::DiagnosticEvent;
+use crate::preferences::{AppLocale, PreferencesStore};
 use crate::state::{BrowserInstallation, ConfigImportPreview, DesktopService};
 
 const SYSTEM_SETTINGS_BUNDLE_ID: &str = "com.apple.systempreferences";
 
 pub struct AppState {
     pub service: Mutex<DesktopService>,
+    pub preferences: Mutex<PreferencesStore>,
 }
 
 #[derive(Default)]
@@ -51,6 +53,7 @@ fn restore_settings_after_system_settings(app: AppHandle) {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AppSnapshot {
+    pub locale: AppLocale,
     pub config: RouterConfig,
     pub config_error: Option<String>,
     pub browsers: Vec<BrowserInstallation>,
@@ -64,6 +67,7 @@ pub struct AppSnapshot {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct SelectorState {
+    pub locale: AppLocale,
     pub pending: Vec<crate::state::PendingRoute>,
     pub browsers: Vec<BrowserInstallation>,
 }
@@ -71,7 +75,13 @@ pub struct SelectorState {
 #[tauri::command]
 pub fn get_state(app: AppHandle, state: State<'_, AppState>) -> Result<AppSnapshot, String> {
     let service = state.service.lock().map_err(|error| error.to_string())?;
+    let locale = state
+        .preferences
+        .lock()
+        .map_err(|error| error.to_string())?
+        .locale();
     Ok(AppSnapshot {
+        locale,
         config: service.config.clone(),
         config_error: service.config_error.clone(),
         browsers: service.browsers.clone(),
@@ -82,6 +92,37 @@ pub fn get_state(app: AppHandle, state: State<'_, AppState>) -> Result<AppSnapsh
         diagnostics_error: service.diagnostics.persistence_error().map(str::to_string),
         system: service.platform().system_status(&app.config().identifier),
     })
+}
+
+#[tauri::command]
+pub fn set_locale(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    locale: AppLocale,
+) -> Result<AppLocale, String> {
+    let previous_locale = {
+        let mut preferences = state
+            .preferences
+            .lock()
+            .map_err(|error| error.to_string())?;
+        let previous_locale = preferences.locale();
+        preferences.save_locale(locale)?;
+        previous_locale
+    };
+    if let Err(error) = crate::tray::set_locale(&app, locale) {
+        if let Ok(mut preferences) = state.preferences.lock() {
+            let _ = preferences.save_locale(previous_locale);
+        }
+        let _ = crate::tray::set_locale(&app, previous_locale);
+        return Err(error.to_string());
+    }
+    if let Some(window) = app.get_webview_window("settings") {
+        let _ = window.set_title(locale.settings_title());
+    }
+    if let Some(window) = app.get_webview_window("selector") {
+        let _ = window.set_title(locale.selector_title());
+    }
+    Ok(locale)
 }
 
 #[tauri::command]
@@ -296,7 +337,13 @@ pub fn set_diagnostics_limit(
 #[tauri::command]
 pub fn get_selector_state(state: State<'_, AppState>) -> Result<SelectorState, String> {
     let service = state.service.lock().map_err(|error| error.to_string())?;
+    let locale = state
+        .preferences
+        .lock()
+        .map_err(|error| error.to_string())?
+        .locale();
     Ok(SelectorState {
+        locale,
         pending: service.pending_routes().to_vec(),
         browsers: service.browsers.clone(),
     })

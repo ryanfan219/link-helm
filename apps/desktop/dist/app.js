@@ -1,8 +1,9 @@
 const invoke = window.__TAURI_INTERNALS__?.invoke;
-const state = { snapshot: null, selectedRuleId: null, messages: {} };
+const state = { snapshot: null, selectedRuleId: null, locale: "en" };
 
 const $ = (id) => document.getElementById(id);
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+const t = (key, values) => window.LynkoI18n.t(key, values);
 
 function setInteractiveReady(ready) {
   document.querySelectorAll(".content button, .content input, .content select, .content textarea").forEach((control) => {
@@ -12,12 +13,12 @@ function setInteractiveReady(ready) {
 }
 
 function requireSnapshot() {
-  if (!state.snapshot) throw new Error("Lynko is still loading. Please try again in a moment.");
+  if (!state.snapshot) throw new Error(t("error.stillLoading"));
   return state.snapshot;
 }
 
 async function call(command, args = {}) {
-  if (!invoke) throw new Error("Tauri IPC is unavailable. Run this page inside Lynko.");
+  if (!invoke) throw new Error(t("error.ipcUnavailable"));
   return invoke(command, args);
 }
 
@@ -63,7 +64,7 @@ function matcherPayload(value) {
 
 function profileOptions(selected = "") {
   const profiles = allProfiles();
-  if (!profiles.length) return '<option value="">No profiles found</option>';
+  if (!profiles.length) return `<option value="">${escapeHtml(t("browser.noProfiles"))}</option>`;
   return profiles.map(({browser, profile}) => {
     const value = encodeProfileValue(browser.descriptor.id, profile.profile_id);
     return `<option value="${escapeHtml(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(browser.descriptor.display_name)} — ${escapeHtml(profile.display_name)}</option>`;
@@ -78,19 +79,19 @@ function render() {
   const snapshot = state.snapshot;
   if (!snapshot) return;
   $("config-error").hidden = !snapshot.config_error;
-  $("config-error").textContent = snapshot.config_error ? `Safe mode: ${snapshot.config_error}. Import or save a valid configuration to replace it.` : "";
+  $("config-error").textContent = snapshot.config_error ? t("error.safeMode", { error: snapshot.config_error }) : "";
   $("diagnostics-error").hidden = !snapshot.diagnostics_error;
   $("diagnostics-error").textContent = snapshot.diagnostics_error || "";
   if (document.activeElement !== $("diagnostics-limit")) $("diagnostics-limit").value = snapshot.diagnostics_limit;
   $("paused").checked = snapshot.paused;
   $("ask-next").checked = snapshot.ask_next;
   $("routing-dot").classList.toggle("paused", snapshot.paused);
-  $("routing-label").textContent = snapshot.paused ? "Routing paused" : "Routing active";
-  $("default-status").textContent = snapshot.system.is_default_browser ? "Default" : `Current: ${snapshot.system.http_handler || "Unknown"}`;
+  $("routing-label").textContent = t(snapshot.paused ? "status.routingPaused" : "status.routingActive");
+  $("default-status").textContent = snapshot.system.is_default_browser ? t("status.default") : t("status.current", { value: snapshot.system.http_handler || t("status.unknown") });
   $("default-status").className = `badge ${snapshot.system.is_default_browser ? "success" : "neutral"}`;
   $("set-default").disabled = snapshot.system.is_default_browser;
   $("rules-inactive").hidden = snapshot.system.is_default_browser;
-  $("accessibility-status").textContent = snapshot.system.accessibility_trusted ? "Granted" : "Not granted";
+  $("accessibility-status").textContent = t(snapshot.system.accessibility_trusted ? "status.granted" : "status.notGranted");
   $("accessibility-status").className = `badge ${snapshot.system.accessibility_trusted ? "success" : "neutral"}`;
   $("open-accessibility").hidden = snapshot.system.accessibility_trusted;
   $("test-profile").innerHTML = profileOptions($("test-profile").value);
@@ -104,35 +105,35 @@ function render() {
 function renderBrowsers() {
   const list = $("browser-list");
   list.innerHTML = state.snapshot.browsers.map((browser) => {
-    const capabilities = Object.entries(browser.capabilities).filter(([,value]) => value).map(([key]) => `<span class="capability">${escapeHtml(key.replaceAll("_", " "))}</span>`).join("");
-    const profiles = browser.profiles.length ? browser.profiles.map((profile) => `<div class="profile-row"><strong>${escapeHtml(profile.display_name)}</strong><span class="profile-id">${escapeHtml(profile.profile_id)}</span></div>`).join("") : `<div class="empty">${browser.installed ? escapeHtml(browser.error || "No profiles found") : "Browser is not installed"}</div>`;
-    return `<article class="browser-item"><div class="browser-head"><div><h2>${escapeHtml(browser.descriptor.display_name)}</h2><div class="browser-id">${escapeHtml(browser.descriptor.id)}</div></div><span class="badge ${browser.installed ? "success" : "missing"}">${browser.installed ? "Installed" : "Missing"}</span></div><div class="capabilities">${capabilities}</div><div class="profile-list">${profiles}</div></article>`;
+    const capabilities = Object.entries(browser.capabilities).filter(([,value]) => value).map(([key]) => `<span class="capability">${escapeHtml(t(`capability.${key}`))}</span>`).join("");
+    const profiles = browser.profiles.length ? browser.profiles.map((profile) => `<div class="profile-row"><strong>${escapeHtml(profile.display_name)}</strong><span class="profile-id">${escapeHtml(profile.profile_id)}</span></div>`).join("") : `<div class="empty">${browser.installed ? escapeHtml(browser.error || t("browser.noProfiles")) : escapeHtml(t("browser.notInstalled"))}</div>`;
+    return `<article class="browser-item"><div class="browser-head"><div><h2>${escapeHtml(browser.descriptor.display_name)}</h2><div class="browser-id">${escapeHtml(browser.descriptor.id)}</div></div><span class="badge ${browser.installed ? "success" : "missing"}">${escapeHtml(t(browser.installed ? "status.installed" : "status.missing"))}</span></div><div class="capabilities">${capabilities}</div><div class="profile-list">${profiles}</div></article>`;
   }).join("");
 }
 
 function ruleSummary(rule) {
   const sourceApps = matcherValues(rule.matcher.source_app).join(", ");
   const domains = matcherValues(rule.matcher.domain).join(", ");
-  const match = [sourceApps, domains].filter(Boolean).join(" + ") || "All apps and links";
+  const match = [sourceApps, domains].filter(Boolean).join(" + ") || t("rules.allAppsAndLinks");
   return { title: rule.name || rule.id, subtitle: match };
 }
 
 function renderRules() {
   const rules = state.snapshot.config.rules;
-  $("rule-list").innerHTML = rules.length ? rules.map((rule) => { const summary = ruleSummary(rule); return `<button class="rule-item ${rule.id === state.selectedRuleId ? "active" : ""}" data-rule-id="${escapeHtml(rule.id)}"><span class="rule-item-copy"><strong>${escapeHtml(summary.title)}</strong><small>${escapeHtml(summary.subtitle)}</small></span><span class="badge ${rule.enabled ? "success" : "neutral"}">${rule.enabled ? "Enabled" : "Disabled"}</span></button>`; }).join("") : '<div class="empty">No rules yet</div>';
+  $("rule-list").innerHTML = rules.length ? rules.map((rule) => { const summary = ruleSummary(rule); return `<button class="rule-item ${rule.id === state.selectedRuleId ? "active" : ""}" data-rule-id="${escapeHtml(rule.id)}"><span class="rule-item-copy"><strong>${escapeHtml(summary.title)}</strong><small>${escapeHtml(summary.subtitle)}</small></span><span class="badge ${rule.enabled ? "success" : "neutral"}">${escapeHtml(t(rule.enabled ? "status.enabled" : "status.disabled"))}</span></button>`; }).join("") : `<div class="empty">${escapeHtml(t("rules.empty"))}</div>`;
   document.querySelectorAll(".rule-item").forEach((button) => button.addEventListener("click", () => selectRule(button.dataset.ruleId)));
 }
 
 function renderDiagnostics() {
   const events = state.snapshot.diagnostics;
-  $("diagnostic-list").innerHTML = events.length ? [...events].reverse().map((event) => `<div class="diagnostic-row"><time>${new Date(event.timestamp_ms).toLocaleString()}</time><span>${escapeHtml(event.source_app)}</span><span>${escapeHtml(event.domain)}</span><span>${escapeHtml(event.outcome)}</span></div>`).join("") : '<div class="empty">No diagnostic events</div>';
+  $("diagnostic-list").innerHTML = events.length ? [...events].reverse().map((event) => `<div class="diagnostic-row"><time>${new Date(event.timestamp_ms).toLocaleString(state.locale)}</time><span>${escapeHtml(event.source_app)}</span><span>${escapeHtml(event.domain)}</span><span>${escapeHtml(event.outcome)}</span></div>`).join("") : `<div class="empty">${escapeHtml(t("diagnostics.empty"))}</div>`;
 }
 
 function selectRule(id) {
   state.selectedRuleId = id;
   const rule = state.snapshot.config.rules.find((item) => item.id === id);
   if (!rule) return closeRuleDialog();
-  $("editor-title").textContent = `Edit ${rule.name || rule.id}`;
+  $("editor-title").textContent = t("rules.editRule", { name: rule.name || rule.id });
   $("rule-id").value = rule.id;
   $("rule-name").value = rule.name || rule.id;
   $("rule-enabled").checked = rule.enabled;
@@ -147,7 +148,7 @@ function selectRule(id) {
   $("rule-browser").innerHTML = browserOptions(rule.target.browser_id || "");
   updateModeFields();
   $("delete-rule").hidden = false;
-  $("save-rule").textContent = "Save changes";
+  $("save-rule").textContent = t("action.saveChanges");
   renderRules();
   $("rule-dialog").showModal();
   $("rule-name").focus();
@@ -159,11 +160,11 @@ function resetRuleForm() {
   $("rule-enabled").checked = true;
   $("rule-id").value = "";
   $("rule-name").value = "";
-  $("editor-title").textContent = "New rule";
+  $("editor-title").textContent = t("rules.newRule");
   $("rule-profile").innerHTML = profileOptions();
   $("rule-browser").innerHTML = browserOptions();
   $("delete-rule").hidden = true;
-  $("save-rule").textContent = "Create rule";
+  $("save-rule").textContent = t("action.createRule");
   updateModeFields();
   renderRules();
 }
@@ -198,11 +199,11 @@ function formRule() {
   let browserId = null, profileId = null;
   if (mode === "specified_profile") {
     [browserId, profileId] = decodeProfileValue($("rule-profile").value);
-    if (!browserId || !profileId) throw new Error("Select an available browser profile.");
+    if (!browserId || !profileId) throw new Error(t("error.selectProfile"));
   }
   if (mode === "active_in_browser") browserId = $("rule-browser").value;
   const name = $("rule-name").value.trim();
-  if (!name) throw new Error("Enter a rule name.");
+  if (!name) throw new Error(t("error.enterRuleName"));
   return {
     id: state.selectedRuleId || `rule-${Date.now()}`,
     name,
@@ -227,29 +228,54 @@ async function saveRule(event) {
     state.snapshot.config.rules = rules;
     render();
     closeRuleDialog();
-    notify(existing >= 0 ? "Rule updated" : "Rule created");
+    notify(t(existing >= 0 ? "notice.ruleUpdated" : "notice.ruleCreated"));
   } catch (error) { notify(String(error), true); }
 }
 
 async function initialize() {
   setInteractiveReady(false);
   try {
-    const [messages, snapshot] = await Promise.all([
-      fetch("i18n/en.json").then((response) => {
-        if (!response.ok) throw new Error(`Cannot load language resources (${response.status})`);
-        return response.json();
-      }).catch((error) => { throw new Error(`Language resources failed: ${String(error)}`); }),
-      call("get_state").catch((error) => { throw new Error(`Application state failed: ${String(error)}`); })
-    ]);
-    state.messages = messages;
-    document.querySelectorAll("[data-i18n]").forEach((node) => { node.textContent = state.messages[node.dataset.i18n] || node.textContent; });
+    await window.LynkoI18n.load("en").catch((error) => { throw new Error(`Language resources failed: ${String(error)}`); });
+    const snapshot = await call("get_state").catch((error) => { throw new Error(t("error.applicationState", { error: String(error) })); });
+    const locale = snapshot.locale === "en"
+      ? "en"
+      : await window.LynkoI18n.load(snapshot.locale).catch((error) => { throw new Error(`Language resources failed: ${String(error)}`); });
+    state.locale = locale;
+    $("language").value = locale;
     state.snapshot = snapshot;
     setInteractiveReady(true);
     render();
     resetRuleForm();
-  } catch (error) { notify(`Lynko could not initialize: ${String(error)}`, true); }
+  } catch (error) {
+    const message = t("error.initialize", { error: String(error) });
+    notify(message === "error.initialize" ? `Lynko could not initialize: ${String(error)}` : message, true);
+  }
 }
 
+$("language").addEventListener("change", async (event) => {
+  const previousLocale = state.locale;
+  event.target.disabled = true;
+  try {
+    const locale = await window.LynkoI18n.load(event.target.value);
+    state.locale = await call("set_locale", { locale });
+    state.snapshot.locale = state.locale;
+    render();
+    if (state.selectedRuleId) {
+      const rule = state.snapshot?.config.rules.find((item) => item.id === state.selectedRuleId);
+      if (rule) {
+        $("editor-title").textContent = t("rules.editRule", { name: rule.name || rule.id });
+        $("save-rule").textContent = t("action.saveChanges");
+      }
+    }
+    notify(t("notice.languageChanged"));
+  } catch (error) {
+    state.locale = await window.LynkoI18n.load(previousLocale);
+    event.target.value = previousLocale;
+    notify(t("error.languageChange", { error: String(error) }), true);
+  } finally {
+    event.target.disabled = false;
+  }
+});
 document.querySelectorAll(".nav-item").forEach((button) => button.addEventListener("click", () => {
   document.querySelectorAll(".nav-item, .page").forEach((node) => node.classList.remove("active"));
   button.classList.add("active");
@@ -281,24 +307,24 @@ $("delete-rule").addEventListener("click", async () => {
   const snapshot = requireSnapshot();
   if (!state.selectedRuleId) return closeRuleDialog();
   const rules = snapshot.config.rules.filter((rule) => rule.id !== state.selectedRuleId).map((rule, order) => ({...rule, order}));
-  try { await call("save_config", {config:{...snapshot.config, rules}}); snapshot.config.rules = rules; closeRuleDialog(); notify("Rule deleted"); } catch (error) { notify(String(error), true); }
+  try { await call("save_config", {config:{...snapshot.config, rules}}); snapshot.config.rules = rules; closeRuleDialog(); notify(t("notice.ruleDeleted")); } catch (error) { notify(String(error), true); }
 });
-$("rescan").addEventListener("click", async () => { try { const snapshot = requireSnapshot(); snapshot.browsers = await call("scan_browsers"); render(); notify("Profile scan completed"); } catch (error) { notify(String(error), true); } });
+$("rescan").addEventListener("click", async () => { try { const snapshot = requireSnapshot(); snapshot.browsers = await call("scan_browsers"); render(); notify(t("notice.scanCompleted")); } catch (error) { notify(String(error), true); } });
 $("paused").addEventListener("change", async (event) => { try { const snapshot = requireSnapshot(); await call("set_paused", {paused:event.target.checked}); snapshot.paused = event.target.checked; render(); } catch (error) { notify(String(error), true); } });
 $("ask-next").addEventListener("change", async (event) => { try { const snapshot = requireSnapshot(); await call("set_ask_next", {askNext:event.target.checked}); snapshot.ask_next = event.target.checked; render(); } catch (error) { notify(String(error), true); } });
-$("preview-button").addEventListener("click", async () => { try { const result = await call("preview_route", {sourceApp:$("preview-source").value, url:$("preview-url").value}); $("preview-result").textContent = `Action: ${result.final_action}; rule: ${result.matched_rule_id || "none"}; reason: ${typeof result.reason === "string" ? result.reason : JSON.stringify(result.reason)}`; } catch (error) { $("preview-result").textContent = String(error); } });
-$("test-open").addEventListener("click", async () => { const [browserId, profileId] = decodeProfileValue($("test-profile").value); try { requireSnapshot(); if (!browserId || !profileId) throw new Error("Select an available browser profile."); await call("test_open", {browserId, profileId, url:$("test-url").value}); state.snapshot = await call("get_state"); render(); notify("Test URL opened"); } catch (error) { notify(String(error), true); } });
+$("preview-button").addEventListener("click", async () => { try { const result = await call("preview_route", {sourceApp:$("preview-source").value, url:$("preview-url").value}); $("preview-result").textContent = t("rules.previewResult", { action: result.final_action, rule: result.matched_rule_id || t("option.fallback.none"), reason: typeof result.reason === "string" ? result.reason : JSON.stringify(result.reason) }); } catch (error) { $("preview-result").textContent = String(error); } });
+$("test-open").addEventListener("click", async () => { const [browserId, profileId] = decodeProfileValue($("test-profile").value); try { requireSnapshot(); if (!browserId || !profileId) throw new Error(t("error.selectProfile")); await call("test_open", {browserId, profileId, url:$("test-url").value}); state.snapshot = await call("get_state"); render(); notify(t("notice.testOpened")); } catch (error) { notify(String(error), true); } });
 $("clear-diagnostics").addEventListener("click", async () => { try { const snapshot = requireSnapshot(); await call("clear_diagnostics"); snapshot.diagnostics = []; renderDiagnostics(); } catch (error) { notify(String(error), true); } });
 $("save-diagnostics-limit").addEventListener("click", async () => {
   try {
     const snapshot = requireSnapshot();
     const limit = Number($("diagnostics-limit").value);
-    if (!Number.isInteger(limit) || limit < 1 || limit > 100000) throw new Error("Enter a whole number between 1 and 100000.");
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100000) throw new Error(t("error.invalidDiagnosticsLimit"));
     await call("set_diagnostics_limit", {limit});
     snapshot.diagnostics_limit = limit;
     snapshot.diagnostics = snapshot.diagnostics.slice(-limit);
     renderDiagnostics();
-    notify("Diagnostics retention updated");
+    notify(t("notice.diagnosticsUpdated"));
   } catch (error) { notify(String(error), true); }
 });
 $("set-default").addEventListener("click", async () => {
@@ -306,28 +332,28 @@ $("set-default").addEventListener("click", async () => {
     const snapshot = requireSnapshot();
     snapshot.system = await call("set_default_browser");
     render();
-    notify("Lynko is now the default browser.");
+    notify(t("notice.defaultBrowserSet"));
   } catch (error) { notify(String(error), true); }
 });
-$("open-default-settings").addEventListener("click", async () => { try { requireSnapshot(); await call("open_default_browser_settings"); notify("Default browser settings opened"); } catch (error) { notify(String(error), true); } });
-$("open-accessibility").addEventListener("click", async () => { try { requireSnapshot(); await call("open_accessibility_settings"); notify("Accessibility settings opened"); } catch (error) { notify(String(error), true); } });
+$("open-default-settings").addEventListener("click", async () => { try { requireSnapshot(); await call("open_default_browser_settings"); notify(t("notice.defaultSettingsOpened")); } catch (error) { notify(String(error), true); } });
+$("open-accessibility").addEventListener("click", async () => { try { requireSnapshot(); await call("open_accessibility_settings"); notify(t("notice.accessibilitySettingsOpened")); } catch (error) { notify(String(error), true); } });
 $("config-json").addEventListener("input", () => {
   $("apply-import").disabled = true;
-  $("config-preview").textContent = "Preview required before import.";
+  $("config-preview").textContent = t("config.previewRequired");
 });
 $("export-config").addEventListener("click", async () => {
   try {
     requireSnapshot();
     $("config-json").value = await call("export_config");
     $("apply-import").disabled = true;
-    $("config-preview").textContent = "Current configuration exported.";
+    $("config-preview").textContent = t("config.exported");
   } catch (error) { notify(String(error), true); }
 });
 $("preview-import").addEventListener("click", async () => {
   try {
     requireSnapshot();
     const preview = await call("preview_import_config", {json:$("config-json").value});
-    $("config-preview").textContent = `Schema ${preview.schema_version}; ${preview.rule_count} rules; ${preview.enabled_rule_count} enabled.`;
+    $("config-preview").textContent = t("config.previewSummary", { schema: preview.schema_version, rules: preview.rule_count, enabled: preview.enabled_rule_count });
     $("apply-import").disabled = false;
   } catch (error) {
     $("apply-import").disabled = true;
@@ -343,12 +369,12 @@ $("apply-import").addEventListener("click", async () => {
     render();
     resetRuleForm();
     $("apply-import").disabled = true;
-    notify("Configuration imported");
+    notify(t("notice.configurationImported"));
   } catch (error) { notify(String(error), true); }
 });
 
 window.addEventListener("unhandledrejection", (event) => {
-  notify(String(event.reason || "Unexpected asynchronous error"), true);
+  notify(String(event.reason || t("error.unexpectedAsync")), true);
   event.preventDefault();
 });
 
