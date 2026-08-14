@@ -1,84 +1,213 @@
-# Lynko - macOS browser identity router
+# Lynko
 
-Lynko routes external HTTP/HTTPS links by source application and domain to a selected browser Profile. The desktop application is built with Tauri 2 and Rust and targets macOS 13 or later.
+English | [简体中文](README.zh-CN.md)
 
-Design reference: [`2026-08-13-browser-identity-router-design.md`](2026-08-13-browser-identity-router-design.md)
+Lynko is a browser identity router for macOS. It receives HTTP and HTTPS links from the system and routes them to a specific browser Profile according to the source application, domain, and your rules. This keeps work accounts, personal accounts, and other browsing contexts separated.
 
-## Workspace
+For example, Lynko can:
 
-```text
-crates/router-model      Configuration, browser, identity, and routing contracts
-crates/router-core       Pure rule matching and route decisions
-crates/browser-adapters  Chrome, Edge, Brave, and Firefox profile adapters
-crates/platform-api      Platform query and execution ports
-crates/platform-macos    Launch Services, Accessibility status, AppKit, and launch execution
-crates/config-store      Versioned atomic configuration storage
-apps/desktop             Tauri settings, tray menu, selector, IPC, and diagnostics
+- Send company links from Mail to a work Profile in Chrome.
+- Send private links from chat applications to a personal Profile.
+- Ask which browser identity to use when no rule matches.
+- Pause automatic routing or show the identity selector for only the next link.
+
+Lynko is built with Rust and Tauri 2 and currently targets macOS 13 or later.
+
+## Intended Audience
+
+- macOS users who want to select browser Profiles automatically by application and domain.
+- Rust and Tauri developers who want to build Lynko from source, change its routing behavior, or add browser adapters.
+
+## Features
+
+- Match routing rules by source application Bundle ID and domain.
+- Discover browser Profiles from Chrome, Edge, Brave, and Firefox.
+- Route to a specified Profile, the active Profile in a browser, the globally active Profile, or an interactive prompt.
+- Provide a menu bar controller, settings window, and keyboard-accessible identity selector.
+- Preview rules, test Profile opening, and import or export configuration.
+- Retain only domains and stable identifiers in diagnostics; URL paths, query values, and fragments are not persisted.
+- Provide English and Simplified Chinese interfaces with a persistent language preference.
+
+## Prerequisites
+
+Building Lynko from source requires:
+
+- macOS 13 or later.
+- A [stable Rust toolchain](https://www.rust-lang.org/tools/install).
+- Xcode Command Line Tools.
+- Tauri CLI 2.
+
+Install Xcode Command Line Tools:
+
+```bash
+xcode-select --install
 ```
 
-## Run
+Install Tauri CLI:
 
-The development executable starts in the background and adds the Lynko menu bar item. Use **Open Settings...** from that menu to show the settings window:
+```bash
+cargo install tauri-cli --version "^2.0" --locked
+```
+
+The interface uses static HTML, CSS, and JavaScript stored in the repository. Node.js and a frontend package manager are not required.
+
+## Get the Source
+
+Clone the repository:
+
+```bash
+git clone https://github.com/ryanfan219/lynko.git
+cd lynko
+```
+
+To update an existing local clone:
+
+```bash
+git pull --ff-only
+```
+
+Download Rust dependencies after the first clone:
+
+```bash
+cargo fetch
+```
+
+## Run Locally
+
+Run the development build from the repository root:
+
+```bash
+cargo run -p lynko-desktop
+```
+
+Lynko starts in the background and remains in the macOS menu bar. It does not open the settings window automatically. Click the Lynko menu bar icon, then select **Open Settings...** or **打开设置...**.
+
+After all dependencies have been downloaded, you can also run offline:
 
 ```bash
 cargo run -p lynko-desktop --offline
 ```
 
-Build the macOS application bundle from the Tauri project directory:
+## Build the macOS App
+
+Build a local application bundle from the Tauri project directory:
 
 ```bash
 cd apps/desktop
 cargo tauri build --bundles app --no-sign
-open ../../target/release/bundle/macos/Lynko.app
 ```
 
-The optional local proxy is only needed when dependencies are not cached:
+The application bundle is generated at:
+
+```text
+target/release/bundle/macos/Lynko.app
+```
+
+## First-Time Setup
+
+1. Open Lynko settings from the menu bar.
+2. Rescan browser Profiles under **Browsers & Profiles / 浏览器与身份**.
+3. Create a rule under **Rules / 规则**, selecting a source application, an optional domain, and a target Profile.
+4. Preview the rule, then use the Profile test on the General page to verify the target browser.
+5. To receive all external web links, click **Set as Default / 设为默认** and complete macOS authorization. You can also select Lynko manually under **System Settings > Desktop & Dock > Default web browser**.
+
+Lynko changes the default browser only after you explicitly request it and complete macOS authorization. You can restore the previous browser from the same system setting after testing.
+
+Test URL delivery without changing the default browser:
 
 ```bash
-export https_proxy=http://127.0.0.1:7897 \
-  http_proxy=http://127.0.0.1:7897 \
-  all_proxy=socks5://127.0.0.1:7897
+open -a Lynko 'https://example.com/test'
 ```
 
-## Configure And Test
+## Development
 
-1. Open Browsers & Profiles and select Rescan. Installed browser Profiles should appear by display name and stable directory ID.
-2. Open Rules, enter an editable rule name, choose the source application with the macOS application picker, optionally add a domain matcher, choose a target Profile or Ask, then save. The internal rule ID remains stable when the name changes.
-3. Use Preview to inspect the matched rule and terminal action without opening a browser.
-4. In General, use Open in profile to send `https://example.com` to the selected Profile. Chrome reuses a browser-managed Profile window when available.
-5. After building and opening `Lynko.app`, test URL delivery without changing the default browser:
+Start development on a separate branch:
 
-   ```bash
-   open -a Lynko 'https://example.com/test'
-   ```
+```bash
+git checkout -b feature/my-change
+```
 
-6. To receive all external web links, select Open Settings in General, then choose Lynko as the default web browser in macOS System Settings. The button remains available after Lynko becomes default, and Lynko never changes this setting directly.
+The project is organized as a Cargo workspace:
 
-Closing the settings window hides it and leaves routing and the menu bar item running. Use **Quit Lynko** from the menu bar when you want to stop the router.
+| Path | Responsibility |
+| --- | --- |
+| `crates/router-model` | Configuration, browser identity, and routing data models |
+| `crates/router-core` | Rule matching and routing decisions |
+| `crates/browser-adapters` | Chromium and Firefox Profile adapters |
+| `crates/platform-api` | Platform capability interfaces |
+| `crates/platform-macos` | Launch Services, Accessibility, and macOS execution |
+| `crates/config-store` | Configuration loading, validation, and atomic writes |
+| `apps/desktop/dist` | Settings UI, identity selector, and localization resources |
+| `apps/desktop/src-tauri` | Tauri commands, tray menu, windows, and desktop state |
 
-To restore Chrome, open System Settings > Desktop & Dock > Default web browser and choose Google Chrome.
+Common extension points:
 
-## Storage And Privacy
+- UI changes: edit the HTML, CSS, JavaScript, and `i18n` resources under `apps/desktop/dist`.
+- Routing semantics: start in `router-model` and `router-core`, keeping models and decisions independent of the desktop UI.
+- Browser support: implement Profile discovery and opening behavior in `browser-adapters`, using platform capabilities through `platform-api`.
+- macOS integration: edit `platform-macos` and keep platform details out of the core routing modules.
+- Desktop commands: register commands in `apps/desktop/src-tauri/src/commands.rs` and expose them explicitly through the Tauri handler in `lib.rs`.
 
-Lynko writes `config.json` and bounded `diagnostics.json` below its macOS application data directory. Configuration and diagnostics use temporary-file replacement. Invalid imported or on-disk configuration is preserved and places the app in visible safe mode.
-
-Diagnostics retain normalized domains and stable IDs only. URL paths, query values, and fragments are not persisted.
-
-## Current Capability Boundary
-
-Chrome Profile discovery and browser-managed Profile opening are implemented. Edge, Brave, and Firefox have adapter contract tests but were not available for live verification on this machine. Source bundle IDs are read from the current AppKit foreground application when available.
-
-For a specified Profile, choose Open target profile to reuse the browser through macOS Launch Services without creating another browser Dock instance. Choose Create target window only when a profile-guaranteed new window is required; that explicit action uses browser command-line arguments.
-
-Lynko records the stable `last_used` Profile while a supported browser is foreground and uses that snapshot for Active in browser and Globally active rules. Chrome active-window opens operate on the existing front window. Specified Profile opens attempt Accessibility-assisted Profile activation and verify the stable Profile ID before opening; if verification is unavailable they fall back to the direct `--profile-directory` path so identity correctness is preserved.
-
-Precise mapping of every existing browser window to a Profile and incognito detection are still not implemented. Active routing therefore follows the most recently observed browser Profile rather than maintaining a permanent identity for every window.
-
-## Verify
+Before submitting changes, run:
 
 ```bash
 cargo fmt --all -- --check
-cargo test --workspace --offline
-cargo clippy --workspace --all-targets --offline -- -D warnings
-cargo build --workspace --offline
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+cargo build --workspace
 ```
+
+For fully offline verification, add `--offline` to Cargo commands after all dependencies have been cached.
+
+## Troubleshooting
+
+### `cargo tauri` is not available
+
+Confirm that Tauri CLI 2 is installed:
+
+```bash
+cargo tauri --version
+```
+
+If the command is unavailable, run the `cargo install tauri-cli` command from the prerequisites section again.
+
+### No window appears after startup
+
+This is expected. Lynko starts in the background and remains in the menu bar. Open settings from the menu bar icon. If the icon is missing, check the terminal output for a startup error.
+
+### Offline builds report missing dependencies
+
+The `--offline` option can use only crates already cached on the machine. Run `cargo fetch` while online, then retry the offline command.
+
+### The browser Profile list is empty
+
+Confirm that the browser is installed and has at least one Profile, then rescan under **Browsers & Profiles / 浏览器与身份**. Profile storage and available capabilities differ between browsers.
+
+### External links do not reach Lynko
+
+Confirm that Lynko is the default HTTP and HTTPS handler. During development, use `open -a Lynko 'https://example.com/test'` to test URL events directly without changing the default browser.
+
+### Active Profile tracking is unreliable
+
+Check and grant Accessibility permission in settings. Lynko uses this permission to observe foreground browsers and windows reliably; some active identity behavior is limited without it.
+
+## Configuration and Privacy
+
+Lynko stores these files in its macOS application data directory:
+
+- `config.json`: routing rules.
+- `preferences.json`: application preferences such as interface language.
+- `diagnostics.json`: a bounded set of diagnostic records.
+
+Configuration and diagnostic data are written using temporary-file replacement. Invalid configuration does not overwrite the current valid configuration and places the application in a visible safe mode. Diagnostics do not persist URL paths, query values, or fragments.
+
+## Current Limitations
+
+- Desktop integration currently targets macOS; Windows and Linux implementations are not available.
+- Chrome has live Profile discovery and opening support. Edge, Brave, and Firefox primarily have adapter-level support and still need broader testing on real installations.
+- Active identity routing follows the most recently observed browser Profile rather than maintaining a permanent identity mapping for every existing window.
+- Precise incognito window detection is not implemented.
+
+## License
+
+Lynko is available under the [MIT License](LICENSE). You may use, copy, modify, merge, publish, and commercially distribute the project as long as the license and copyright notice are retained.

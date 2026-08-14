@@ -3,6 +3,7 @@ name = "lynko-desktop"
 version = "0.1.0"
 edition = "2021"
 description = "Lynko cross-browser identity router desktop shell"
+license.workspace = true
 
 [lib]
 name = "lynko_desktop_lib"
