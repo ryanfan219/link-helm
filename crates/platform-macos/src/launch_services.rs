@@ -88,8 +88,12 @@ fn register_default_handlers(
     mut get_handler: impl FnMut(&str) -> Option<String>,
 ) -> Result<(), String> {
     for scheme in ["http", "https"] {
-        set_handler(scheme, bundle_id)
-            .map_err(|error| format!("cannot register {scheme} handler: {error}"))?;
+        if let Err(error) = set_handler(scheme, bundle_id) {
+            let actual = get_handler(scheme);
+            if actual.as_deref() != Some(bundle_id) {
+                return Err(format!("cannot register {scheme} handler: {error}"));
+            }
+        }
     }
     for scheme in ["http", "https"] {
         let actual = get_handler(scheme);
@@ -162,7 +166,7 @@ mod tests {
                     Ok(())
                 }
             },
-            |_| Some("com.example.lynko".to_string()),
+            |_| Some("com.google.Chrome".to_string()),
         )
         .unwrap_err();
 

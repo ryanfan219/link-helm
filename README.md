@@ -13,6 +13,14 @@ For example, Lynko can:
 
 Lynko is built with Rust and Tauri 2 and currently targets macOS 13 or later.
 
+## Compatibility Status
+
+| Platform | Browser | Status |
+| --- | --- | --- |
+| macOS | Google Chrome | Validated |
+| macOS | Microsoft Edge, Brave, Firefox | Adapter-level support; not fully validated |
+| Windows and Linux | All browsers | Planned |
+
 ## Intended Audience
 
 - macOS users who want to select browser Profiles automatically by application and domain.
@@ -101,6 +109,31 @@ The application bundle is generated at:
 
 ```text
 target/release/bundle/macos/Lynko.app
+```
+
+To package separate DMGs for Intel and Apple Silicon Macs, install both Rust targets once:
+
+```bash
+rustup target add x86_64-apple-darwin aarch64-apple-darwin
+```
+
+Then run the architecture-specific builds from the Tauri project directory:
+
+```bash
+cd apps/desktop
+
+# Intel Macs
+cargo tauri build --target x86_64-apple-darwin --bundles dmg --no-sign
+
+# Apple Silicon Macs
+cargo tauri build --target aarch64-apple-darwin --bundles dmg --no-sign
+```
+
+The DMG packages are generated under the repository root at:
+
+```text
+target/x86_64-apple-darwin/release/bundle/dmg/Lynko_<version>_x64.dmg
+target/aarch64-apple-darwin/release/bundle/dmg/Lynko_<version>_aarch64.dmg
 ```
 
 ## First-Time Setup
@@ -203,8 +236,6 @@ Configuration and diagnostic data are written using temporary-file replacement. 
 
 ## Current Limitations
 
-- Desktop integration currently targets macOS; Windows and Linux implementations are not available.
-- Chrome has live Profile discovery and opening support. Edge, Brave, and Firefox primarily have adapter-level support and still need broader testing on real installations.
 - Active identity routing follows the most recently observed browser Profile rather than maintaining a permanent identity mapping for every existing window.
 - Precise incognito window detection is not implemented.
 
