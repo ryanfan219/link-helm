@@ -23,6 +23,7 @@ Thumbs.db
 *.log
 
 # AI-generated planning and design artifacts
+/AGENTS.md
 .ai/
 .agents/
 .claude/
