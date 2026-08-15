@@ -1,6 +1,6 @@
 # Lynko
 
-English | [简体中文](README.zh-CN.md)
+English | [简体中文](README.zh-CN.md) | [Website](https://ryanfan219.github.io/lynko/)
 
 Lynko is a browser identity router for macOS. It receives HTTP and HTTPS links from the system and routes them to a specific browser Profile according to the source application, domain, and your rules. This keeps work accounts, personal accounts, and other browsing contexts separated.
 

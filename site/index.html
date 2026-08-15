@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f7f5" />
+    <meta name="description" content="Lynko routes macOS links to the right browser profile by source app and domain." />
+    <meta property="og:title" content="Lynko - browser identity routing for macOS" />
+    <meta property="og:description" content="Send every link to the browser profile where it belongs." />
+    <meta property="og:image" content="assets/lynko-settings.png" />
+    <meta property="og:url" content="https://ryanfan219.github.io/lynko/" />
+    <title>Lynko - Browser identity routing for macOS</title>
+    <link rel="canonical" href="https://ryanfan219.github.io/lynko/" />
+    <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Primary navigation" data-i18n-aria="navLabel">
+        <a class="brand" href="#top" aria-label="Lynko home">
+          <img src="assets/app-icon.svg" alt="" width="34" height="34" />
+          <span>Lynko</span>
+        </a>
+        <div class="nav-links">
+          <a href="#workflow" data-i18n="navWorkflow">How it works</a>
+          <a href="#compatibility" data-i18n="navCompatibility">Compatibility</a>
+          <a href="#download" data-i18n="navDownload">Build Lynko</a>
+        </div>
+        <div class="nav-actions">
+          <button class="icon-button" id="language-toggle" type="button" aria-label="Switch to Chinese" title="Switch language">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+            <span id="language-label">中文</span>
+          </button>
+          <a class="icon-button github-link" href="https://github.com/ryanfan219/lynko" aria-label="Lynko on GitHub" title="GitHub">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3.3-.4 6.8-1.6 6.8-7A5.4 5.4 0 0 0 19.4 4 5 5 0 0 0 19.3.5S18.2.1 15 1.8a13.4 13.4 0 0 0-7 0C4.8.1 3.7.5 3.7.5A5 5 0 0 0 3.6 4a5.4 5.4 0 0 0-1.4 3.7c0 5.4 3.5 6.6 6.8 7A4.8 4.8 0 0 0 8 18v4M8 19c-3 .9-3-1.5-4-2"/></svg>
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-image" aria-hidden="true"></div>
+        <div class="hero-overlay" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <img class="hero-icon" src="assets/app-icon.svg" alt="" width="76" height="76" />
+          <p class="eyebrow" data-i18n="heroEyebrow">Browser identity router</p>
+          <h1 id="hero-title">Lynko</h1>
+          <p class="hero-lede" data-i18n="heroLede">One link. The right browser profile.</p>
+          <p class="hero-detail" data-i18n="heroDetail">Route external links by source application and domain, keeping work, personal, and client sessions in the browser identity where they belong.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="https://github.com/ryanfan219/lynko#build-the-macos-app">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+              <span data-i18n="buildSource">Build from source</span>
+            </a>
+            </div>
+          <div class="hero-meta" aria-label="Current support status" data-i18n-aria="supportLabel">
+            <span data-i18n="macRequirement">macOS 13+</span>
+            <span data-i18n="chromeValidated">Chrome validated</span>
+            <span data-i18n="openSource">MIT licensed</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="product-band" aria-labelledby="product-title">
+        <div class="section-shell">
+          <div class="section-heading split-heading">
+            <div>
+              <p class="eyebrow" data-i18n="productEyebrow">Control without context switching</p>
+              <h2 id="product-title" data-i18n="productTitle">A quiet control surface for every incoming link</h2>
+            </div>
+            <p data-i18n="productDetail">Set Lynko as the default browser, define precise rules, preview routing decisions, and keep sensitive URL paths out of diagnostics.</p>
+          </div>
+          <figure class="product-shot">
+            <img src="assets/lynko-settings.png" alt="Lynko settings showing default browser, accessibility, routing controls, and browser profile testing" data-i18n-alt="productAlt" width="950" height="820" />
+            <figcaption data-i18n="productCaption">The current Lynko settings interface on macOS.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="workflow-band" id="workflow" aria-labelledby="workflow-title">
+        <div class="section-shell">
+          <div class="section-heading">
+            <p class="eyebrow" data-i18n="workflowEyebrow">Routing pipeline</p>
+            <h2 id="workflow-title" data-i18n="workflowTitle">Context in. Correct identity out.</h2>
+            <p data-i18n="workflowDetail">Lynko evaluates only the context needed to make a routing decision.</p>
+          </div>
+          <ol class="route-flow">
+            <li>
+              <span class="step-number">01</span>
+              <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4M7 13h7"/></svg>
+              <h3 data-i18n="stepSourceTitle">Source application</h3>
+              <p data-i18n="stepSourceDetail">Mail, chat, calendar, or any app opening a web link.</p>
+            </li>
+            <li>
+              <span class="step-number">02</span>
+              <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.1 1M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.1-1"/></svg>
+              <h3 data-i18n="stepContextTitle">Link context</h3>
+              <p data-i18n="stepContextDetail">Match by source Bundle ID and domain without retaining full URLs.</p>
+            </li>
+            <li>
+              <span class="step-number">03</span>
+              <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4zM8 9h8M8 13h5"/></svg>
+              <h3 data-i18n="stepRuleTitle">Routing rule</h3>
+              <p data-i18n="stepRuleDetail">Choose a specified, active, global, or prompted destination.</p>
+            </li>
+            <li>
+              <span class="step-number">04</span>
+              <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 7.8 13.5L12 12zM4.2 7.5H12v4.5"/></svg>
+              <h3 data-i18n="stepProfileTitle">Browser profile</h3>
+              <p data-i18n="stepProfileDetail">Open the link in the browser-managed identity that fits the context.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="capabilities-band" aria-labelledby="capabilities-title">
+        <div class="section-shell capabilities-layout">
+          <div class="section-heading">
+            <p class="eyebrow" data-i18n="capabilitiesEyebrow">Built for repeat use</p>
+            <h2 id="capabilities-title" data-i18n="capabilitiesTitle">Routing that stays explainable</h2>
+          </div>
+          <div class="capability-list">
+            <article>
+              <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"/><circle cx="18" cy="17" r="2"/></svg>
+              <div><h3 data-i18n="featureRulesTitle">Specific, ordered rules</h3><p data-i18n="featureRulesDetail">Preview matches before relying on them, then reorder and export your configuration.</p></div>
+            </article>
+            <article>
+              <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+              <div><h3 data-i18n="featurePrivacyTitle">Bounded diagnostics</h3><p data-i18n="featurePrivacyDetail">Diagnostics retain domains and stable identifiers, not paths, query values, or fragments.</p></div>
+            </article>
+            <article>
+              <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+              <div><h3 data-i18n="featureFallbackTitle">Visible fallback behavior</h3><p data-i18n="featureFallbackDetail">Ask, reuse an active profile, open a target profile, or fail explicitly when a destination is unavailable.</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="compatibility-band" id="compatibility" aria-labelledby="compatibility-title">
+        <div class="section-shell">
+          <div class="section-heading split-heading">
+            <div><p class="eyebrow" data-i18n="compatibilityEyebrow">Current support</p><h2 id="compatibility-title" data-i18n="compatibilityTitle">Validated where it matters, explicit everywhere else</h2></div>
+            <p data-i18n="compatibilityDetail">Lynko is early software. The table distinguishes verified behavior from adapter-level work and future plans.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col" data-i18n="tablePlatform">Platform</th><th scope="col" data-i18n="tableBrowser">Browser</th><th scope="col" data-i18n="tableStatus">Status</th></tr></thead>
+              <tbody>
+                <tr><td>macOS 13+</td><td>Google Chrome</td><td><span class="status verified" data-i18n="statusValidated">Validated</span></td></tr>
+                <tr><td>macOS 13+</td><td>Microsoft Edge, Brave, Firefox</td><td><span class="status partial" data-i18n="statusPartial">Adapter-level support; not fully validated</span></td></tr>
+                <tr><td>Windows / Linux</td><td data-i18n="allBrowsers">All browsers</td><td><span class="status planned" data-i18n="statusPlanned">Planned</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="download-band" id="download" aria-labelledby="download-title">
+        <div class="section-shell download-layout">
+          <div>
+            <p class="eyebrow" data-i18n="downloadEyebrow">Source build</p>
+            <h2 id="download-title" data-i18n="downloadTitle">Build Lynko on your Mac</h2>
+            <p class="download-copy" data-i18n="downloadDetail">Create an application bundle or architecture-specific DMG directly from the source.</p>
+          </div>
+          <div class="download-actions">
+            <a class="text-link" href="https://github.com/ryanfan219/lynko#build-the-macos-app" data-i18n="sourceInstructions">Source build instructions</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="section-shell footer-layout">
+        <div class="brand footer-brand"><img src="assets/app-icon.svg" alt="" width="30" height="30" /><span>Lynko</span></div>
+        <p data-i18n="footerText">Open source under the MIT License. Built with Rust and Tauri.</p>
+        <a href="https://github.com/ryanfan219/lynko" data-i18n="viewGithub">View on GitHub</a>
+      </div>
+    </footer>
+  </body>
+</html>
