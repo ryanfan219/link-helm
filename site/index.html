@@ -4,13 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f4f7f5" />
-    <meta name="description" content="Lynko routes macOS links to the right browser profile by source app and domain." />
-    <meta property="og:title" content="Lynko - browser identity routing for macOS" />
+    <meta name="description" content="Link Helm routes macOS links to the right browser profile by source app and domain." />
+    <meta property="og:title" content="Link Helm - browser identity routing for macOS" />
     <meta property="og:description" content="Send every link to the browser profile where it belongs." />
-    <meta property="og:image" content="assets/lynko-settings.png" />
-    <meta property="og:url" content="https://ryanfan219.github.io/lynko/" />
-    <title>Lynko - Browser identity routing for macOS</title>
-    <link rel="canonical" href="https://ryanfan219.github.io/lynko/" />
+    <meta property="og:image" content="assets/link-helm-settings.png" />
+    <meta property="og:url" content="https://ryanfan219.github.io/link-helm/" />
+    <title>Link Helm - Browser identity routing for macOS</title>
+    <link rel="canonical" href="https://ryanfan219.github.io/link-helm/" />
     <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
     <script src="app.js" defer></script>
@@ -19,21 +19,21 @@
     <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
     <header class="site-header">
       <nav class="nav-shell" aria-label="Primary navigation" data-i18n-aria="navLabel">
-        <a class="brand" href="#top" aria-label="Lynko home">
+        <a class="brand" href="#top" aria-label="Link Helm home">
           <img src="assets/app-icon.svg" alt="" width="34" height="34" />
-          <span>Lynko</span>
+          <span>Link Helm</span>
         </a>
         <div class="nav-links">
           <a href="#workflow" data-i18n="navWorkflow">How it works</a>
           <a href="#compatibility" data-i18n="navCompatibility">Compatibility</a>
-          <a href="#download" data-i18n="navDownload">Build Lynko</a>
+          <a href="#download" data-i18n="navDownload">Build Link Helm</a>
         </div>
         <div class="nav-actions">
           <button class="icon-button" id="language-toggle" type="button" aria-label="Switch to Chinese" title="Switch language">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
             <span id="language-label">中文</span>
           </button>
-          <a class="icon-button github-link" href="https://github.com/ryanfan219/lynko" aria-label="Lynko on GitHub" title="GitHub">
+          <a class="icon-button github-link" href="https://github.com/ryanfan219/link-helm" aria-label="Link Helm on GitHub" title="GitHub">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3.3-.4 6.8-1.6 6.8-7A5.4 5.4 0 0 0 19.4 4 5 5 0 0 0 19.3.5S18.2.1 15 1.8a13.4 13.4 0 0 0-7 0C4.8.1 3.7.5 3.7.5A5 5 0 0 0 3.6 4a5.4 5.4 0 0 0-1.4 3.7c0 5.4 3.5 6.6 6.8 7A4.8 4.8 0 0 0 8 18v4M8 19c-3 .9-3-1.5-4-2"/></svg>
           </a>
         </div>
@@ -47,11 +47,11 @@
         <div class="hero-copy">
           <img class="hero-icon" src="assets/app-icon.svg" alt="" width="76" height="76" />
           <p class="eyebrow" data-i18n="heroEyebrow">Browser identity router</p>
-          <h1 id="hero-title">Lynko</h1>
+          <h1 id="hero-title">Link Helm</h1>
           <p class="hero-lede" data-i18n="heroLede">One link. The right browser profile.</p>
           <p class="hero-detail" data-i18n="heroDetail">Route external links by source application and domain, keeping work, personal, and client sessions in the browser identity where they belong.</p>
           <div class="hero-actions">
-            <a class="button primary" href="https://github.com/ryanfan219/lynko#build-the-macos-app">
+            <a class="button primary" href="https://github.com/ryanfan219/link-helm#build-the-macos-app">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
               <span data-i18n="buildSource">Build from source</span>
             </a>
@@ -71,11 +71,11 @@
               <p class="eyebrow" data-i18n="productEyebrow">Control without context switching</p>
               <h2 id="product-title" data-i18n="productTitle">A quiet control surface for every incoming link</h2>
             </div>
-            <p data-i18n="productDetail">Set Lynko as the default browser, define precise rules, preview routing decisions, and keep sensitive URL paths out of diagnostics.</p>
+            <p data-i18n="productDetail">Set Link Helm as the default browser, define precise rules, preview routing decisions, and keep sensitive URL paths out of diagnostics.</p>
           </div>
           <figure class="product-shot">
-            <img src="assets/lynko-settings.png" alt="Lynko settings showing default browser, accessibility, routing controls, and browser profile testing" data-i18n-alt="productAlt" width="950" height="820" />
-            <figcaption data-i18n="productCaption">The current Lynko settings interface on macOS.</figcaption>
+            <img src="assets/link-helm-settings.png" alt="Link Helm settings showing default browser, accessibility, routing controls, and browser profile testing" data-i18n-alt="productAlt" width="950" height="820" />
+            <figcaption data-i18n="productCaption">The current Link Helm settings interface on macOS.</figcaption>
           </figure>
         </div>
       </section>
@@ -85,7 +85,7 @@
           <div class="section-heading">
             <p class="eyebrow" data-i18n="workflowEyebrow">Routing pipeline</p>
             <h2 id="workflow-title" data-i18n="workflowTitle">Context in. Correct identity out.</h2>
-            <p data-i18n="workflowDetail">Lynko evaluates only the context needed to make a routing decision.</p>
+            <p data-i18n="workflowDetail">Link Helm evaluates only the context needed to make a routing decision.</p>
           </div>
           <ol class="route-flow">
             <li>
@@ -143,7 +143,7 @@
         <div class="section-shell">
           <div class="section-heading split-heading">
             <div><p class="eyebrow" data-i18n="compatibilityEyebrow">Current support</p><h2 id="compatibility-title" data-i18n="compatibilityTitle">Validated where it matters, explicit everywhere else</h2></div>
-            <p data-i18n="compatibilityDetail">Lynko is early software. The table distinguishes verified behavior from adapter-level work and future plans.</p>
+            <p data-i18n="compatibilityDetail">Link Helm is early software. The table distinguishes verified behavior from adapter-level work and future plans.</p>
           </div>
           <div class="table-wrap">
             <table>
@@ -162,11 +162,11 @@
         <div class="section-shell download-layout">
           <div>
             <p class="eyebrow" data-i18n="downloadEyebrow">Source build</p>
-            <h2 id="download-title" data-i18n="downloadTitle">Build Lynko on your Mac</h2>
+            <h2 id="download-title" data-i18n="downloadTitle">Build Link Helm on your Mac</h2>
             <p class="download-copy" data-i18n="downloadDetail">Create an application bundle or architecture-specific DMG directly from the source.</p>
           </div>
           <div class="download-actions">
-            <a class="text-link" href="https://github.com/ryanfan219/lynko#build-the-macos-app" data-i18n="sourceInstructions">Source build instructions</a>
+            <a class="text-link" href="https://github.com/ryanfan219/link-helm#build-the-macos-app" data-i18n="sourceInstructions">Source build instructions</a>
           </div>
         </div>
       </section>
@@ -174,9 +174,9 @@
 
     <footer>
       <div class="section-shell footer-layout">
-        <div class="brand footer-brand"><img src="assets/app-icon.svg" alt="" width="30" height="30" /><span>Lynko</span></div>
+        <div class="brand footer-brand"><img src="assets/app-icon.svg" alt="" width="30" height="30" /><span>Link Helm</span></div>
         <p data-i18n="footerText">Open source under the MIT License. Built with Rust and Tauri.</p>
-        <a href="https://github.com/ryanfan219/lynko" data-i18n="viewGithub">View on GitHub</a>
+        <a href="https://github.com/ryanfan219/link-helm" data-i18n="viewGithub">View on GitHub</a>
       </div>
     </footer>
   </body>

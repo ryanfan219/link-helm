@@ -241,7 +241,7 @@ mod tests {
 
     #[test]
     fn persisted_diagnostics_survive_restart_and_remain_bounded() {
-        let dir = std::env::temp_dir().join("lynko-persisted-diagnostics-test");
+        let dir = std::env::temp_dir().join("link-helm-persisted-diagnostics-test");
         let _ = std::fs::remove_dir_all(&dir);
         let path = dir.join("diagnostics.json");
         let url = url::Url::parse("https://example.com/private?token=secret").unwrap();

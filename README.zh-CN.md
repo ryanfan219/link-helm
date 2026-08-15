@@ -1,22 +1,22 @@
-# Lynko
+# Link Helm
 
 [English](README.md) | 简体中文
 
-Lynko 是一款面向 macOS 的浏览器身份路由工具。它接收系统中的 HTTP/HTTPS 链接，根据来源应用、域名和自定义规则，将链接发送到指定浏览器及对应的 Profile，避免工作账号、个人账号和不同使用场景混在同一个浏览器身份中。
+Link Helm 是一款面向 macOS 的浏览器身份路由工具。它接收系统中的 HTTP/HTTPS 链接，根据来源应用、域名和自定义规则，将链接发送到指定浏览器及对应的 Profile，避免工作账号、个人账号和不同使用场景混在同一个浏览器身份中。
 
-例如，你可以让 Lynko：
+例如，你可以让 Link Helm：
 
 - 将 Mail 中的公司链接发送到 Chrome 的工作 Profile。
 - 将聊天软件中的私人链接发送到个人 Profile。
 - 对未匹配的链接询问本次使用哪个浏览器身份。
 - 暂停自动路由，或只让下一个链接打开身份选择器。
 
-Lynko 使用 Rust 和 Tauri 2 构建，目前面向 macOS 13 及以上版本。
+Link Helm 使用 Rust 和 Tauri 2 构建，目前面向 macOS 13 及以上版本。
 
 ## 适用读者
 
 - 希望按应用和域名自动选择浏览器 Profile 的 macOS 用户。
-- 希望从源码构建 Lynko、修改路由行为或增加浏览器适配器的 Rust/Tauri 开发者。
+- 希望从源码构建 Link Helm、修改路由行为或增加浏览器适配器的 Rust/Tauri 开发者。
 
 ## 主要功能
 
@@ -30,7 +30,7 @@ Lynko 使用 Rust 和 Tauri 2 构建，目前面向 macOS 13 及以上版本。
 
 ## 构建前置条件
 
-从源码构建 Lynko 需要：
+从源码构建 Link Helm 需要：
 
 - macOS 13 或更高版本。
 - [Rust stable toolchain](https://www.rust-lang.org/tools/install)。
@@ -56,8 +56,8 @@ cargo install tauri-cli --version "^2.0" --locked
 克隆仓库：
 
 ```bash
-git clone https://github.com/ryanfan219/lynko.git
-cd lynko
+git clone https://github.com/ryanfan219/link-helm.git
+cd link-helm
 ```
 
 已有本地仓库时，可以获取最新代码：
@@ -77,15 +77,15 @@ cargo fetch
 在仓库根目录运行开发版本：
 
 ```bash
-cargo run -p lynko-desktop
+cargo run -p link-helm-desktop
 ```
 
-Lynko 启动后常驻 macOS 菜单栏，不会自动显示主窗口。点击菜单栏中的 Lynko 图标，然后选择 **Open Settings...** 或 **打开设置...**。
+Link Helm 启动后常驻 macOS 菜单栏，不会自动显示主窗口。点击菜单栏中的 Link Helm 图标，然后选择 **Open Settings...** 或 **打开设置...**。
 
 如果依赖已经下载完成，也可以离线运行：
 
 ```bash
-cargo run -p lynko-desktop --offline
+cargo run -p link-helm-desktop --offline
 ```
 
 ## 构建 macOS 应用
@@ -100,23 +100,23 @@ cargo tauri build --bundles app --no-sign
 构建产物位于：
 
 ```text
-target/release/bundle/macos/Lynko.app
+target/release/bundle/macos/Link Helm.app
 ```
 
 ## 首次设置
 
-1. 从菜单栏打开 Lynko 设置。
+1. 从菜单栏打开 Link Helm 设置。
 2. 在 **Browsers & Profiles / 浏览器与身份** 中重新扫描浏览器 Profile。
 3. 在 **Rules / 规则** 中创建规则，选择来源应用、可选域名和目标 Profile。
 4. 使用规则预览确认匹配结果，再使用通用页的 Profile 测试功能验证目标浏览器。
-5. 需要接收所有外部网页链接时，点击 **Set as Default / 设为默认** 并完成 macOS 授权；也可以打开 macOS **系统设置 > 桌面与程序坞 > 默认网页浏览器**，手动选择 Lynko。
+5. 需要接收所有外部网页链接时，点击 **Set as Default / 设为默认** 并完成 macOS 授权；也可以打开 macOS **系统设置 > 桌面与程序坞 > 默认网页浏览器**，手动选择 Link Helm。
 
-Lynko 只会在用户主动执行设为默认操作并完成 macOS 授权后修改默认浏览器。测试完成后，可在同一系统设置中恢复原浏览器。
+Link Helm 只会在用户主动执行设为默认操作并完成 macOS 授权后修改默认浏览器。测试完成后，可在同一系统设置中恢复原浏览器。
 
 测试应用能否接收 URL，而不修改系统默认浏览器：
 
 ```bash
-open -a Lynko 'https://example.com/test'
+open -a "Link Helm" 'https://example.com/test'
 ```
 
 ## 二次开发
@@ -173,7 +173,7 @@ cargo tauri --version
 
 ### 启动后没有出现窗口
 
-这是预期行为。Lynko 默认在后台启动并常驻菜单栏，请从菜单栏图标打开设置。若菜单栏中没有图标，请从终端输出中检查启动错误。
+这是预期行为。Link Helm 默认在后台启动并常驻菜单栏，请从菜单栏图标打开设置。若菜单栏中没有图标，请从终端输出中检查启动错误。
 
 ### 离线构建提示缺少依赖
 
@@ -183,9 +183,9 @@ cargo tauri --version
 
 确认浏览器已经安装并至少创建过一个 Profile，然后在 **Browsers & Profiles / 浏览器与身份** 中重新扫描。不同浏览器的 Profile 数据目录和可用能力可能不同。
 
-### 外部链接没有进入 Lynko
+### 外部链接没有进入 Link Helm
 
-确认 Lynko 已被设为 HTTP/HTTPS 默认处理程序。开发阶段也可以使用 `open -a Lynko 'https://example.com/test'` 绕过默认浏览器设置，直接测试 URL 事件。
+确认 Link Helm 已被设为 HTTP/HTTPS 默认处理程序。开发阶段也可以使用 `open -a "Link Helm" 'https://example.com/test'` 绕过默认浏览器设置，直接测试 URL 事件。
 
 ### 活动 Profile 跟踪不稳定
 
@@ -193,7 +193,7 @@ cargo tauri --version
 
 ## 配置与隐私
 
-Lynko 在 macOS 应用数据目录中保存：
+Link Helm 在 macOS 应用数据目录中保存：
 
 - `config.json`：路由规则。
 - `preferences.json`：界面语言等应用偏好。
@@ -210,4 +210,4 @@ Lynko 在 macOS 应用数据目录中保存：
 
 ## License
 
-Lynko 使用 [MIT License](LICENSE) 开源。你可以使用、复制、修改、合并、发布和商业分发本项目，但必须保留许可证和版权声明。
+Link Helm 使用 [MIT License](LICENSE) 开源。你可以使用、复制、修改、合并、发布和商业分发本项目，但必须保留许可证和版权声明。

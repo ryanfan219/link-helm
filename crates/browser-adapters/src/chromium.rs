@@ -210,7 +210,7 @@ mod tests {
 
     #[test]
     fn discovers_chromium_profile_directories() {
-        let dir = std::env::temp_dir().join("lynko-chromium-test");
+        let dir = std::env::temp_dir().join("link-helm-chromium-test");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(dir.join("Default")).unwrap();
         std::fs::create_dir_all(dir.join("Profile 1")).unwrap();
@@ -232,7 +232,7 @@ mod tests {
 
     #[test]
     fn uses_local_state_profile_names_and_stable_directory_ids() {
-        let dir = std::env::temp_dir().join("lynko-chromium-local-state-test");
+        let dir = std::env::temp_dir().join("link-helm-chromium-local-state-test");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(dir.join("Default")).unwrap();
         std::fs::create_dir_all(dir.join("Profile 2")).unwrap();

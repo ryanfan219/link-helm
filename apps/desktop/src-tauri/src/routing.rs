@@ -50,7 +50,7 @@ pub fn handle_opened_url(app: &AppHandle, url: url::Url) {
             let _ = show_selector(app);
         }
         Ok(RouteDisposition::Opened | RouteDisposition::Failed) => {}
-        Err(error) => eprintln!("Lynko could not route URL: {error}"),
+        Err(error) => eprintln!("Link Helm could not route URL: {error}"),
     }
 }
 
@@ -67,15 +67,15 @@ mod tests {
     #[test]
     fn source_application_filters_the_router_itself() {
         assert_eq!(
-            source_application_or_unknown(Some("com.apple.mail".into()), "com.example.lynko"),
+            source_application_or_unknown(Some("com.apple.mail".into()), "com.example.linkhelm"),
             "com.apple.mail"
         );
         assert_eq!(
-            source_application_or_unknown(Some("com.example.lynko".into()), "com.example.lynko"),
+            source_application_or_unknown(Some("com.example.linkhelm".into()), "com.example.linkhelm"),
             "unknown"
         );
         assert_eq!(
-            source_application_or_unknown(None, "com.example.lynko"),
+            source_application_or_unknown(None, "com.example.linkhelm"),
             "unknown"
         );
     }

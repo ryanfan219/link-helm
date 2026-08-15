@@ -1,7 +1,7 @@
 const invoke = window.__TAURI_INTERNALS__?.invoke;
 let pendingId = null;
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
-const t = (key, values) => window.LynkoI18n.t(key, values);
+const t = (key, values) => window.LinkHelmI18n.t(key, values);
 
 function closeWindow() {
   window.close();
@@ -10,7 +10,7 @@ function closeWindow() {
 async function initialize() {
   try {
     const state = await invoke("get_selector_state");
-    await window.LynkoI18n.load(state.locale);
+    await window.LinkHelmI18n.load(state.locale);
     const pending = state.pending[0];
     if (!pending) {
       pendingId = null;

@@ -280,7 +280,7 @@ pub fn test_open(
         .map_err(|error| error.to_string())?;
     let identity_id = format!("{browser_id}/{profile_id}");
     service.diagnostics.record_route(
-        "com.example.lynko.settings",
+        "com.example.linkhelm.settings",
         &parsed_url,
         "opened",
         None,

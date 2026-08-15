@@ -1,12 +1,12 @@
 [package]
-name = "lynko-desktop"
+name = "link-helm-desktop"
 version = "0.1.0"
 edition = "2021"
-description = "Lynko cross-browser identity router desktop shell"
+description = "Link Helm cross-browser identity router desktop shell"
 license.workspace = true
 
 [lib]
-name = "lynko_desktop_lib"
+name = "link_helm_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

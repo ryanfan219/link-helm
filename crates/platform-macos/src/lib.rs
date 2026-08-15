@@ -476,7 +476,7 @@ mod tests {
     #[test]
     fn chromium_singleton_message_preserves_profile_and_url_arguments() {
         let message = encode_singleton_message(
-            "/tmp/lynko",
+            "/tmp/link-helm",
             "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
             &[
                 "--profile-directory=Default".to_string(),
@@ -486,7 +486,7 @@ mod tests {
 
         assert_eq!(
             message,
-            b"START\0/tmp/lynko\0/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\0--profile-directory=Default\0https://example.com/path"
+            b"START\0/tmp/link-helm\0/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\0--profile-directory=Default\0https://example.com/path"
         );
     }
 

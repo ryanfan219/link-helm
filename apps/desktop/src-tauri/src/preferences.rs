@@ -14,8 +14,8 @@ pub enum AppLocale {
 impl AppLocale {
     pub const fn settings_title(self) -> &'static str {
         match self {
-            Self::English => "Lynko Settings",
-            Self::SimplifiedChinese => "Lynko 设置",
+            Self::English => "Link Helm Settings",
+            Self::SimplifiedChinese => "Link Helm 设置",
         }
     }
 
@@ -33,14 +33,14 @@ impl AppLocale {
                 ask_next: "Ask Next Time",
                 pause: "Pause Routing",
                 rescan: "Rescan Profiles",
-                quit: "Quit Lynko",
+                quit: "Quit Link Helm",
             },
             Self::SimplifiedChinese => TrayLabels {
                 open_settings: "打开设置...",
                 ask_next: "下次询问",
                 pause: "暂停路由",
                 rescan: "重新扫描身份",
-                quit: "退出 Lynko",
+                quit: "退出 Link Helm",
             },
         }
     }

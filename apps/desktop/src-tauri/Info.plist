@@ -17,6 +17,6 @@
   <key>LSUIElement</key>
   <true/>
   <key>NSAccessibilityUsageDescription</key>
-  <string>Lynko uses Accessibility access to identify the browser window and profile you most recently used.</string>
+  <string>Link Helm uses Accessibility access to identify the browser window and profile you most recently used.</string>
 </dict>
 </plist>

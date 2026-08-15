@@ -3,7 +3,7 @@ const state = { snapshot: null, selectedRuleId: null, locale: "en" };
 
 const $ = (id) => document.getElementById(id);
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
-const t = (key, values) => window.LynkoI18n.t(key, values);
+const t = (key, values) => window.LinkHelmI18n.t(key, values);
 
 function setInteractiveReady(ready) {
   document.querySelectorAll(".content button, .content input, .content select, .content textarea").forEach((control) => {
@@ -235,11 +235,11 @@ async function saveRule(event) {
 async function initialize() {
   setInteractiveReady(false);
   try {
-    await window.LynkoI18n.load("en").catch((error) => { throw new Error(`Language resources failed: ${String(error)}`); });
+    await window.LinkHelmI18n.load("en").catch((error) => { throw new Error(`Language resources failed: ${String(error)}`); });
     const snapshot = await call("get_state").catch((error) => { throw new Error(t("error.applicationState", { error: String(error) })); });
     const locale = snapshot.locale === "en"
       ? "en"
-      : await window.LynkoI18n.load(snapshot.locale).catch((error) => { throw new Error(`Language resources failed: ${String(error)}`); });
+      : await window.LinkHelmI18n.load(snapshot.locale).catch((error) => { throw new Error(`Language resources failed: ${String(error)}`); });
     state.locale = locale;
     $("language").value = locale;
     state.snapshot = snapshot;
@@ -248,7 +248,7 @@ async function initialize() {
     resetRuleForm();
   } catch (error) {
     const message = t("error.initialize", { error: String(error) });
-    notify(message === "error.initialize" ? `Lynko could not initialize: ${String(error)}` : message, true);
+    notify(message === "error.initialize" ? `Link Helm could not initialize: ${String(error)}` : message, true);
   }
 }
 
@@ -256,7 +256,7 @@ $("language").addEventListener("change", async (event) => {
   const previousLocale = state.locale;
   event.target.disabled = true;
   try {
-    const locale = await window.LynkoI18n.load(event.target.value);
+    const locale = await window.LinkHelmI18n.load(event.target.value);
     state.locale = await call("set_locale", { locale });
     state.snapshot.locale = state.locale;
     render();
@@ -269,7 +269,7 @@ $("language").addEventListener("change", async (event) => {
     }
     notify(t("notice.languageChanged"));
   } catch (error) {
-    state.locale = await window.LynkoI18n.load(previousLocale);
+    state.locale = await window.LinkHelmI18n.load(previousLocale);
     event.target.value = previousLocale;
     notify(t("error.languageChange", { error: String(error) }), true);
   } finally {

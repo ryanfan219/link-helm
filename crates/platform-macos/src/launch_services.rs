@@ -120,20 +120,20 @@ mod tests {
         let mut registrations = Vec::new();
 
         register_default_handlers(
-            "com.example.lynko",
+            "com.example.linkhelm",
             |scheme, bundle_id| {
                 registrations.push((scheme.to_string(), bundle_id.to_string()));
                 Ok(())
             },
-            |_| Some("com.example.lynko".to_string()),
+            |_| Some("com.example.linkhelm".to_string()),
         )
         .unwrap();
 
         assert_eq!(
             registrations,
             vec![
-                ("http".to_string(), "com.example.lynko".to_string()),
-                ("https".to_string(), "com.example.lynko".to_string())
+                ("http".to_string(), "com.example.linkhelm".to_string()),
+                ("https".to_string(), "com.example.linkhelm".to_string())
             ]
         );
     }
@@ -141,11 +141,11 @@ mod tests {
     #[test]
     fn direct_registration_rejects_unverified_handler_state() {
         let error = register_default_handlers(
-            "com.example.lynko",
+            "com.example.linkhelm",
             |_, _| Ok(()),
             |scheme| {
                 (scheme == "http")
-                    .then(|| "com.example.lynko".to_string())
+                    .then(|| "com.example.linkhelm".to_string())
                     .or_else(|| Some("com.google.Chrome".to_string()))
             },
         )
@@ -158,7 +158,7 @@ mod tests {
     #[test]
     fn direct_registration_identifies_the_scheme_that_failed() {
         let error = register_default_handlers(
-            "com.example.lynko",
+            "com.example.linkhelm",
             |scheme, _| {
                 if scheme == "https" {
                     Err("permission denied".to_string())
@@ -179,14 +179,14 @@ mod tests {
     #[test]
     fn requires_both_web_schemes_to_be_registered() {
         assert!(is_default_handler(
-            Some("com.example.lynko"),
-            Some("com.example.lynko"),
-            "com.example.lynko"
+            Some("com.example.linkhelm"),
+            Some("com.example.linkhelm"),
+            "com.example.linkhelm"
         ));
         assert!(!is_default_handler(
-            Some("com.example.lynko"),
+            Some("com.example.linkhelm"),
             Some("com.google.Chrome"),
-            "com.example.lynko"
+            "com.example.linkhelm"
         ));
     }
 

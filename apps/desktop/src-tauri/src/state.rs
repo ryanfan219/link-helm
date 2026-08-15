@@ -532,7 +532,7 @@ mod tests {
 
     #[test]
     fn invalid_rules_are_not_saved() {
-        let mut service = temporary_service("lynko-invalid-rule-service");
+        let mut service = temporary_service("link-helm-invalid-rule-service");
         let config = RouterConfig {
             schema_version: 1,
             rules: vec![RouteRule {
@@ -561,7 +561,7 @@ mod tests {
 
     #[test]
     fn recent_browser_identities_become_available_runtime_sessions() {
-        let mut service = temporary_service("lynko-recent-identity-snapshot-service");
+        let mut service = temporary_service("link-helm-recent-identity-snapshot-service");
         let older = Instant::now() - Duration::from_secs(5);
         let newer = Instant::now();
         service.record_active_identity(
@@ -596,7 +596,7 @@ mod tests {
 
     #[test]
     fn a_non_browser_frontmost_app_does_not_invent_recent_browser_activation() {
-        let mut service = temporary_service("lynko-no-invented-browser-activation-service");
+        let mut service = temporary_service("link-helm-no-invented-browser-activation-service");
         service.record_available_profile(
             BrowserId::new("com.google.Chrome"),
             ProfileId::new("Default"),
@@ -644,7 +644,7 @@ mod tests {
 
     #[test]
     fn active_browser_rule_uses_the_recorded_identity_instead_of_asking() {
-        let mut service = temporary_service("lynko-active-browser-preview-service");
+        let mut service = temporary_service("link-helm-active-browser-preview-service");
         service.record_active_identity(
             BrowserId::new("com.google.Chrome"),
             router_model::ids::ProfileId::new("Profile 6"),
@@ -691,7 +691,7 @@ mod tests {
 
     #[test]
     fn an_open_specified_profile_wins_before_any_active_fallback() {
-        let mut service = temporary_service("lynko-open-specified-profile-service");
+        let mut service = temporary_service("link-helm-open-specified-profile-service");
         service.record_active_identity(
             BrowserId::new("com.google.Chrome"),
             router_model::ids::ProfileId::new("Profile 6"),
@@ -734,7 +734,7 @@ mod tests {
 
     #[test]
     fn saved_rule_names_are_trimmed() {
-        let mut service = temporary_service("lynko-trimmed-rule-name-service");
+        let mut service = temporary_service("link-helm-trimmed-rule-name-service");
         let config = RouterConfig {
             schema_version: 1,
             rules: vec![RouteRule {
@@ -767,7 +767,7 @@ mod tests {
 
     #[test]
     fn browser_scan_reports_installed_and_missing_browsers() {
-        let mut service = temporary_service("lynko-browser-scan-service");
+        let mut service = temporary_service("link-helm-browser-scan-service");
 
         let browsers = service.scan_browsers();
 
@@ -782,7 +782,7 @@ mod tests {
 
     #[test]
     fn preview_uses_saved_rules() {
-        let mut service = temporary_service("lynko-preview-service");
+        let mut service = temporary_service("link-helm-preview-service");
         service.config.rules.push(RouteRule {
             id: RuleId::new("ask-example"),
             name: None,
@@ -810,7 +810,7 @@ mod tests {
 
     #[test]
     fn unmatched_external_url_is_queued_for_selection() {
-        let mut service = temporary_service("lynko-pending-route-service");
+        let mut service = temporary_service("link-helm-pending-route-service");
 
         let disposition = service
             .route_url(
@@ -826,7 +826,7 @@ mod tests {
 
     #[test]
     fn failed_pending_selection_keeps_the_route_available() {
-        let mut service = temporary_service("lynko-failed-pending-selection-service");
+        let mut service = temporary_service("link-helm-failed-pending-selection-service");
         service
             .route_url(
                 url::Url::parse("https://example.com/private").unwrap(),
@@ -844,7 +844,7 @@ mod tests {
 
     #[test]
     fn cancelling_a_pending_route_removes_it_without_opening() {
-        let mut service = temporary_service("lynko-cancel-pending-route-service");
+        let mut service = temporary_service("link-helm-cancel-pending-route-service");
         service
             .route_url(
                 url::Url::parse("https://example.com/private").unwrap(),
@@ -864,7 +864,7 @@ mod tests {
 
     #[test]
     fn ask_next_is_consumed_by_exactly_one_route() {
-        let mut service = temporary_service("lynko-ask-next-service");
+        let mut service = temporary_service("link-helm-ask-next-service");
         service.config.rules.push(RouteRule {
             id: RuleId::new("fail-all"),
             name: None,
@@ -906,7 +906,7 @@ mod tests {
 
     #[test]
     fn unsupported_scheme_fails_without_entering_the_selector_queue() {
-        let mut service = temporary_service("lynko-unsupported-scheme-service");
+        let mut service = temporary_service("link-helm-unsupported-scheme-service");
 
         let disposition = service
             .route_url(
@@ -921,7 +921,7 @@ mod tests {
 
     #[test]
     fn invalid_import_does_not_replace_the_current_config() {
-        let mut service = temporary_service("lynko-invalid-import-service");
+        let mut service = temporary_service("link-helm-invalid-import-service");
         service.config.rules.push(RouteRule {
             id: RuleId::new("existing"),
             name: None,
@@ -952,7 +952,7 @@ mod tests {
 
     #[test]
     fn exported_config_can_be_previewed_and_imported() {
-        let mut source = temporary_service("lynko-export-source-service");
+        let mut source = temporary_service("link-helm-export-source-service");
         source.config.rules.push(RouteRule {
             id: RuleId::new("exported"),
             name: None,
@@ -972,7 +972,7 @@ mod tests {
             unavailable_action: UnavailableAction::Ask,
         });
         let json = source.export_config().unwrap();
-        let mut target = temporary_service("lynko-import-target-service");
+        let mut target = temporary_service("link-helm-import-target-service");
 
         let preview = target.preview_import_config(&json).unwrap();
         assert_eq!(preview.rule_count, 1);
@@ -984,7 +984,7 @@ mod tests {
 
     #[test]
     fn damaged_config_enters_safe_mode_without_overwriting_the_file() {
-        let dir = std::env::temp_dir().join("lynko-damaged-config-service");
+        let dir = std::env::temp_dir().join("link-helm-damaged-config-service");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("config.json");

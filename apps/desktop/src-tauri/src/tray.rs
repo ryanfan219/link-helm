@@ -74,7 +74,7 @@ pub fn setup(app: &App, locale: AppLocale) -> tauri::Result<()> {
             "../icons/tray-icon.png"
         ))?)
         .icon_as_template(true)
-        .tooltip("Lynko")
+        .tooltip("Link Helm")
         .menu(&menu)
         .show_menu_on_left_click(true)
         .on_menu_event(|app, event| match event.id().as_ref() {

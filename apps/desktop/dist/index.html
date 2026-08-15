@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title data-i18n="app.settingsTitle">Lynko Settings</title>
+    <title data-i18n="app.settingsTitle">Link Helm Settings</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="i18n.js" defer></script>
     <script src="app.js" defer></script>
@@ -11,7 +11,7 @@
   <body>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Settings sections" data-i18n-aria-label="app.settingsSections">
-        <div class="brand"><img src="app-icon.svg" alt="" /><span>Lynko</span></div>
+        <div class="brand"><img src="app-icon.svg" alt="" /><span>Link Helm</span></div>
         <nav id="nav">
           <button class="nav-item active" data-page="general" data-i18n="nav.general">General</button>
           <button class="nav-item" data-page="browsers" data-i18n="nav.browsers">Browsers &amp; Profiles</button>
@@ -29,7 +29,7 @@
           <div id="config-error" class="inline-warning" role="alert" hidden></div>
           <div class="settings-group">
             <div class="setting-row">
-              <div><h2 data-i18n="general.language">Language</h2><p data-i18n="general.languageHelp">Choose the language used by Lynko.</p></div>
+              <div><h2 data-i18n="general.language">Language</h2><p data-i18n="general.languageHelp">Choose the language used by Link Helm.</p></div>
               <div class="setting-action language-action">
                 <select id="language" aria-label="Language" data-i18n-aria-label="general.language">
                   <option value="en">English</option>
@@ -38,7 +38,7 @@
               </div>
             </div>
             <div class="setting-row">
-              <div><h2 data-i18n="general.defaultBrowser">Default browser</h2><p data-i18n="general.defaultBrowserHelp">Lynko must be selected in macOS to receive external web links.</p></div>
+              <div><h2 data-i18n="general.defaultBrowser">Default browser</h2><p data-i18n="general.defaultBrowserHelp">Link Helm must be selected in macOS to receive external web links.</p></div>
               <div class="setting-action"><span id="default-status" class="badge neutral" data-i18n="status.checking">Checking...</span><div class="setting-buttons"><button id="set-default" class="primary" data-i18n="action.setDefault">Set as Default</button><button id="open-default-settings" data-i18n="action.openDefaultSettings">System Settings...</button></div></div>
             </div>
             <div class="setting-row">
@@ -85,7 +85,7 @@
 
         <section class="page" data-page="rules">
           <header><h1 data-i18n="rules.title">Routing rules</h1><p data-i18n="rules.subtitle">Rules are evaluated by specificity, then by their displayed order.</p></header>
-          <div id="rules-inactive" class="inline-warning" role="status" hidden data-i18n="rules.inactive">Rules are not receiving external links because Lynko is not the default browser.</div>
+          <div id="rules-inactive" class="inline-warning" role="status" hidden data-i18n="rules.inactive">Rules are not receiving external links because Link Helm is not the default browser.</div>
           <div class="preview-bar">
             <label><span data-i18n="field.sourceApp">Source app bundle ID</span><input id="preview-source" value="com.apple.mail" /></label>
             <label><span data-i18n="field.url">URL</span><input id="preview-url" type="url" value="https://example.com" /></label>

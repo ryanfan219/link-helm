@@ -38,7 +38,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 .icon { width: 18px; height: 18px; flex: none; }
 
 .hero { position: relative; height: clamp(540px, 72vh, 650px); min-height: 540px; isolation: isolate; overflow: hidden; border-bottom: 1px solid var(--line); }
-.hero-image { position: absolute; inset: 0; z-index: -2; background: url("assets/lynko-settings.png") center 18% / cover no-repeat; }
+.hero-image { position: absolute; inset: 0; z-index: -2; background: url("assets/link-helm-settings.png") center 18% / cover no-repeat; }
 .hero-overlay { position: absolute; inset: 0; z-index: -1; background: rgba(244, 247, 245, 0.87); }
 .hero-copy { width: min(780px, calc(100% - 40px)); height: 100%; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 48px 0 70px; }
 .hero-icon { margin-bottom: 18px; border-radius: 18px; box-shadow: 0 10px 30px rgba(32, 30, 70, 0.18); }

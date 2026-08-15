@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    lynko_desktop_lib::run()
+    link_helm_desktop_lib::run()
 }

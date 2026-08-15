@@ -67,7 +67,7 @@ mod tests {
 
     #[test]
     fn save_then_load_round_trips() {
-        let dir = std::env::temp_dir().join("lynko-config-store-test");
+        let dir = std::env::temp_dir().join("link-helm-config-store-test");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let store = ConfigStore::new(dir.join("config.json"));
@@ -85,7 +85,7 @@ mod tests {
 
     #[test]
     fn rejects_newer_schema_without_overwriting() {
-        let dir = std::env::temp_dir().join("lynko-config-store-newer");
+        let dir = std::env::temp_dir().join("link-helm-config-store-newer");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("config.json");

@@ -47,7 +47,7 @@
     return locale;
   }
 
-  window.LynkoI18n = {
+  window.LinkHelmI18n = {
     apply,
     getLocale: () => locale,
     load,
