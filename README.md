@@ -239,6 +239,10 @@ Configuration and diagnostic data are written using temporary-file replacement. 
 - Active identity routing follows the most recently observed browser Profile rather than maintaining a permanent identity mapping for every existing window.
 - Precise incognito window detection is not implemented.
 
+## AI-Assisted Development
+
+Link Helm is developed with assistance from AI tools for design exploration, implementation, review, and documentation. AI-assisted changes are reviewed by the project maintainer, who remains responsible for the project's technical decisions and releases.
+
 ## License
 
 Link Helm is available under the [MIT License](LICENSE). You may use, copy, modify, merge, publish, and commercially distribute the project as long as the license and copyright notice are retained.
