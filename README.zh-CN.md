@@ -43,6 +43,21 @@ Link Helm 使用 Rust 和 Tauri 2 构建，目前面向 macOS 13 及以上版本
 xcode-select --install
 ```
 
+使用 `rustup` 安装 Rust，将 Cargo 加载到当前 shell，并选择 stable toolchain：
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+rustup default stable
+```
+
+验证安装结果：
+
+```bash
+rustc --version
+cargo --version
+```
+
 安装 Tauri CLI：
 
 ```bash

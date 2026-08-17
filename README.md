@@ -51,6 +51,21 @@ Install Xcode Command Line Tools:
 xcode-select --install
 ```
 
+Install Rust with `rustup`, load Cargo into the current shell, and select the stable toolchain:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+rustup default stable
+```
+
+Verify the installation:
+
+```bash
+rustc --version
+cargo --version
+```
+
 Install Tauri CLI:
 
 ```bash
