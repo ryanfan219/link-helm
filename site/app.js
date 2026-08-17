@@ -8,7 +8,7 @@ const translations = {
     stepSourceTitle: "Source application", stepSourceDetail: "Mail, chat, calendar, or any app opening a web link.", stepContextTitle: "Link context", stepContextDetail: "Match by source Bundle ID and domain without retaining full URLs.", stepRuleTitle: "Routing rule", stepRuleDetail: "Choose a specified, active, global, or prompted destination.", stepProfileTitle: "Browser profile", stepProfileDetail: "Open the link in the browser-managed identity that fits the context.",
     capabilitiesEyebrow: "Built for repeat use", capabilitiesTitle: "Routing that stays explainable", featureRulesTitle: "Specific, ordered rules", featureRulesDetail: "Preview matches before relying on them, then reorder and export your configuration.", featurePrivacyTitle: "Bounded diagnostics", featurePrivacyDetail: "Diagnostics retain domains and stable identifiers, not paths, query values, or fragments.", featureFallbackTitle: "Visible fallback behavior", featureFallbackDetail: "Ask, reuse an active profile, open a target profile, or fail explicitly when a destination is unavailable.",
     compatibilityEyebrow: "Current support", compatibilityTitle: "Validated where it matters, explicit everywhere else", compatibilityDetail: "Link Helm is early software. The table distinguishes verified behavior from adapter-level work and future plans.", tablePlatform: "Platform", tableBrowser: "Browser", tableStatus: "Status", statusValidated: "Validated", statusPartial: "Adapter-level support; not fully validated", allBrowsers: "All browsers", statusPlanned: "Planned",
-    downloadEyebrow: "Source build", downloadTitle: "Build Link Helm on your Mac", downloadDetail: "Create an application bundle or architecture-specific DMG directly from the source.", sourceInstructions: "Source build instructions",
+    downloadEyebrow: "Source build", downloadTitle: "Build Link Helm on your Mac", downloadDetail: "Create an application bundle or architecture-specific DMG directly from the source.", sourceInstructions: "View packaging instructions",
     footerText: "Open source under the MIT License. Built with Rust and Tauri.", viewGithub: "View on GitHub"
   },
   zh: {
@@ -20,7 +20,7 @@ const translations = {
     stepSourceTitle: "来源应用", stepSourceDetail: "邮件、聊天、日历或任何打开网页链接的应用。", stepContextTitle: "链接上下文", stepContextDetail: "按来源 Bundle ID 和域名匹配，不保留完整 URL。", stepRuleTitle: "路由规则", stepRuleDetail: "选择指定、活跃、全局活跃或每次询问的目标。", stepProfileTitle: "浏览器身份", stepProfileDetail: "在符合当前上下文的浏览器托管身份中打开链接。",
     capabilitiesEyebrow: "适合重复使用", capabilitiesTitle: "始终可解释的路由", featureRulesTitle: "明确、有序的规则", featureRulesDetail: "依赖规则前先预览匹配结果，并可调整顺序和导出配置。", featurePrivacyTitle: "有边界的诊断", featurePrivacyDetail: "诊断仅保留域名和稳定标识，不记录路径、查询参数或片段。", featureFallbackTitle: "清晰的回退行为", featureFallbackDetail: "目标不可用时，可以询问、复用活跃身份、打开目标身份或明确失败。",
     compatibilityEyebrow: "当前支持", compatibilityTitle: "已验证的明确标注，未验证的如实说明", compatibilityDetail: "Link Helm 仍处于早期阶段。下表区分已验证行为、适配器级支持和后续计划。", tablePlatform: "平台", tableBrowser: "浏览器", tableStatus: "状态", statusValidated: "已验证", statusPartial: "适配器级支持，尚未充分验证", allBrowsers: "所有浏览器", statusPlanned: "计划支持",
-    downloadEyebrow: "源码构建", downloadTitle: "在 Mac 上构建 Link Helm", downloadDetail: "直接从源码生成应用包或对应架构的 DMG。", sourceInstructions: "源码构建说明",
+    downloadEyebrow: "源码构建", downloadTitle: "在 Mac 上构建 Link Helm", downloadDetail: "直接从源码生成应用包或对应架构的 DMG。", sourceInstructions: "查看打包说明",
     footerText: "基于 MIT 许可证开源，使用 Rust 和 Tauri 构建。", viewGithub: "在 GitHub 查看"
   }
 };

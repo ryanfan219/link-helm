@@ -105,7 +105,6 @@ td { font-size: 15px; }
 .download-layout { display: grid; grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.3fr); gap: 28px 72px; align-items: start; }
 .download-copy { max-width: 480px; }
 .download-actions { grid-column: 2; justify-content: flex-start; margin-top: 0; }
-.download-actions .text-link { margin-left: 6px; }
 
 footer { padding: 28px 0; border-top: 1px solid var(--line); background: var(--surface); }
 .footer-layout { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 30px; }
@@ -152,7 +151,6 @@ footer { padding: 28px 0; border-top: 1px solid var(--line); background: var(--s
   .status { align-items: flex-start; }
   .status::before { flex: none; margin-top: 3px; }
   .download-actions .button { width: 100%; }
-  .download-actions .text-link { margin: 8px 0 0; }
   .footer-layout { grid-template-columns: 1fr; }
   .footer-layout p, .footer-layout a { grid-column: 1; grid-row: auto; }
 }
