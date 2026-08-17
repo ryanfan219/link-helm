@@ -4,7 +4,6 @@ use std::time::Instant;
 use browser_adapters::{BraveAdapter, BrowserAdapter, ChromeAdapter, EdgeAdapter, FirefoxAdapter};
 use config_store::{ConfigStore, ConfigStoreError};
 use platform_api::PlatformAdapter;
-use platform_macos::MacOsPlatformAdapter;
 use router_core::{DefaultRouteEngine, RouteEngine};
 use router_model::browser::OpenDisposition;
 use router_model::browser::{
@@ -18,6 +17,7 @@ use router_model::routing::{
 use serde::Serialize;
 
 use crate::diagnostics::DiagnosticLog;
+use crate::platform::DesktopPlatformAdapter;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct BrowserInstallation {
@@ -80,7 +80,7 @@ pub struct DesktopService {
     next_event_id: u64,
     store: ConfigStore,
     engine: DefaultRouteEngine,
-    platform: MacOsPlatformAdapter,
+    platform: DesktopPlatformAdapter,
     recent_identities: HashMap<BrowserId, (ProfileId, Instant)>,
     available_profiles: HashMap<BrowserId, HashSet<ProfileId>>,
 }
@@ -106,7 +106,7 @@ impl DesktopService {
             next_event_id: 1,
             store,
             engine: DefaultRouteEngine::new(),
-            platform: MacOsPlatformAdapter::new(),
+            platform: DesktopPlatformAdapter::new(),
             recent_identities: HashMap::new(),
             available_profiles: HashMap::new(),
         }
@@ -318,7 +318,7 @@ impl DesktopService {
         ))
     }
 
-    pub fn platform(&self) -> &MacOsPlatformAdapter {
+    pub fn platform(&self) -> &DesktopPlatformAdapter {
         &self.platform
     }
 

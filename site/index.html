@@ -4,12 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f4f7f5" />
-    <meta name="description" content="Link Helm routes macOS links to the right browser profile by source app and domain." />
-    <meta property="og:title" content="Link Helm - browser identity routing for macOS" />
+    <meta name="description" content="Link Helm routes macOS and Windows links to the right browser profile by source app and domain." />
+    <meta property="og:title" content="Link Helm - browser identity routing for macOS and Windows" />
     <meta property="og:description" content="Send every link to the browser profile where it belongs." />
     <meta property="og:image" content="assets/link-helm-settings.png" />
     <meta property="og:url" content="https://ryanfan219.github.io/link-helm/" />
-    <title>Link Helm - Browser identity routing for macOS</title>
+    <title>Link Helm - Browser identity routing for macOS and Windows</title>
     <link rel="canonical" href="https://ryanfan219.github.io/link-helm/" />
     <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
@@ -51,14 +51,14 @@
           <p class="hero-lede" data-i18n="heroLede">One link. The right browser profile.</p>
           <p class="hero-detail" data-i18n="heroDetail">Route external links by source application and domain, keeping work, personal, and client sessions in the browser identity where they belong.</p>
           <div class="hero-actions">
-            <a class="button primary" href="https://github.com/ryanfan219/link-helm#build-the-macos-app">
+            <a class="button primary" href="#download">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
               <span data-i18n="buildSource">Build from source</span>
             </a>
           </div>
           <div class="hero-meta" aria-label="Current support status" data-i18n-aria="supportLabel">
-            <span data-i18n="macRequirement">macOS 13+</span>
-            <span data-i18n="chromeValidated">Chrome validated</span>
+            <span data-i18n="platformRequirement">macOS 13+ / Windows 10/11 x64</span>
+            <span data-i18n="platformValidated">macOS and Windows validated</span>
             <span data-i18n="openSource">MIT licensed</span>
           </div>
         </div>
@@ -98,7 +98,7 @@
               <span class="step-number">02</span>
               <svg class="feature-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.1 1M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.1-1"/></svg>
               <h3 data-i18n="stepContextTitle">Link context</h3>
-              <p data-i18n="stepContextDetail">Match by source Bundle ID and domain without retaining full URLs.</p>
+              <p data-i18n="stepContextDetail">Match by source application identifier and domain without retaining full URLs.</p>
             </li>
             <li>
               <span class="step-number">03</span>
@@ -142,16 +142,16 @@
       <section class="compatibility-band" id="compatibility" aria-labelledby="compatibility-title">
         <div class="section-shell">
           <div class="section-heading split-heading">
-            <div><p class="eyebrow" data-i18n="compatibilityEyebrow">Current support</p><h2 id="compatibility-title" data-i18n="compatibilityTitle">Validated where it matters, explicit everywhere else</h2></div>
-            <p data-i18n="compatibilityDetail">Link Helm is early software. The table distinguishes verified behavior from adapter-level work and future plans.</p>
+            <div><p class="eyebrow" data-i18n="compatibilityEyebrow">Current support</p><h2 id="compatibility-title" data-i18n="compatibilityTitle">Validated on macOS and Windows</h2></div>
+            <p data-i18n="compatibilityDetail">Chrome, Edge, Brave, and Firefox are supported on both current desktop platforms. Linux remains planned.</p>
           </div>
           <div class="table-wrap">
             <table>
               <thead><tr><th scope="col" data-i18n="tablePlatform">Platform</th><th scope="col" data-i18n="tableBrowser">Browser</th><th scope="col" data-i18n="tableStatus">Status</th></tr></thead>
               <tbody>
-                <tr><td>macOS 13+</td><td>Google Chrome</td><td><span class="status verified" data-i18n="statusValidated">Validated</span></td></tr>
-                <tr><td>macOS 13+</td><td>Microsoft Edge, Brave, Firefox</td><td><span class="status partial" data-i18n="statusPartial">Adapter-level support; not fully validated</span></td></tr>
-                <tr><td>Windows / Linux</td><td data-i18n="allBrowsers">All browsers</td><td><span class="status planned" data-i18n="statusPlanned">Planned</span></td></tr>
+                <tr><td>macOS 13+</td><td>Chrome, Edge, Brave, Firefox</td><td><span class="status verified" data-i18n="statusValidated">Validated</span></td></tr>
+                <tr><td>Windows 10/11 x64</td><td>Chrome, Edge, Brave, Firefox</td><td><span class="status verified" data-i18n="statusValidated">Validated</span></td></tr>
+                <tr><td>Linux</td><td data-i18n="allBrowsers">All browsers</td><td><span class="status planned" data-i18n="statusPlanned">Planned</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -162,13 +162,17 @@
         <div class="section-shell download-layout">
           <div>
             <p class="eyebrow" data-i18n="downloadEyebrow">Source build</p>
-            <h2 id="download-title" data-i18n="downloadTitle">Build Link Helm on your Mac</h2>
-            <p class="download-copy" data-i18n="downloadDetail">Create an application bundle or architecture-specific DMG directly from the source.</p>
+            <h2 id="download-title" data-i18n="downloadTitle">Build Link Helm for macOS or Windows</h2>
+            <p class="download-copy" data-i18n="downloadDetail">Package a macOS app or DMG, or build an NSIS installer on Windows 10/11 x64. After installing on Windows, open settings from the system tray and select Link Helm for both HTTP and HTTPS in Default Apps.</p>
           </div>
           <div class="download-actions">
             <a class="button primary" href="https://github.com/ryanfan219/link-helm#build-the-macos-app">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
-              <span data-i18n="sourceInstructions">View packaging instructions</span>
+              <span data-i18n="macInstructions">macOS packaging</span>
+            </a>
+            <a class="button secondary" href="https://github.com/ryanfan219/link-helm#build-the-windows-app">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+              <span data-i18n="windowsInstructions">Windows packaging</span>
             </a>
           </div>
         </div>

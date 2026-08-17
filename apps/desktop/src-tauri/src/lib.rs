@@ -1,5 +1,6 @@
 mod commands;
 mod diagnostics;
+mod platform;
 mod preferences;
 mod routing;
 mod state;
@@ -28,7 +29,13 @@ fn start_foreground_browser_observer(app: tauri::AppHandle) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let mut app = tauri::Builder::default()
+    let builder = tauri::Builder::default();
+    #[cfg(target_os = "windows")]
+    let builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+        routing::handle_url_args(app, args);
+    }));
+
+    let app = builder
         .invoke_handler(tauri::generate_handler![
             commands::get_state,
             commands::set_default_browser,
@@ -67,6 +74,8 @@ pub fn run() {
                 window.set_title(locale.settings_title())?;
             }
             start_foreground_browser_observer(app.handle().clone());
+            #[cfg(target_os = "windows")]
+            routing::handle_url_args(app.handle(), std::env::args());
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -83,6 +92,9 @@ pub fn run() {
         .expect("error while building Link Helm");
 
     #[cfg(target_os = "macos")]
+    let mut app = app;
+
+    #[cfg(target_os = "macos")]
     app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
     app.run(|app, event| {
@@ -92,6 +104,9 @@ pub fn run() {
                 routing::handle_opened_url(app, url);
             }
         }
+
+        #[cfg(not(target_os = "macos"))]
+        let _ = (app, event);
     });
 }
 

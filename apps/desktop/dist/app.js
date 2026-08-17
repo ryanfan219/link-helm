@@ -91,6 +91,7 @@ function render() {
   $("default-status").className = `badge ${snapshot.system.is_default_browser ? "success" : "neutral"}`;
   $("set-default").disabled = snapshot.system.is_default_browser;
   $("rules-inactive").hidden = snapshot.system.is_default_browser;
+  $("accessibility-setting").hidden = !snapshot.system.accessibility_required;
   $("accessibility-status").textContent = t(snapshot.system.accessibility_trusted ? "status.granted" : "status.notGranted");
   $("accessibility-status").className = `badge ${snapshot.system.accessibility_trusted ? "success" : "neutral"}`;
   $("open-accessibility").hidden = snapshot.system.accessibility_trusted;
@@ -332,7 +333,7 @@ $("set-default").addEventListener("click", async () => {
     const snapshot = requireSnapshot();
     snapshot.system = await call("set_default_browser");
     render();
-    notify(t("notice.defaultBrowserSet"));
+    notify(t(snapshot.system.is_default_browser ? "notice.defaultBrowserSet" : "notice.defaultBrowserSelectionRequired"));
   } catch (error) { notify(String(error), true); }
 });
 $("open-default-settings").addEventListener("click", async () => { try { requireSnapshot(); await call("open_default_browser_settings"); notify(t("notice.defaultSettingsOpened")); } catch (error) { notify(String(error), true); } });

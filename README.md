@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md) | [Website](https://ryanfan219.github.io/link-helm/)
 
-Link Helm is a browser identity router for macOS. It receives HTTP and HTTPS links from the system and routes them to a specific browser Profile according to the source application, domain, and your rules. This keeps work accounts, personal accounts, and other browsing contexts separated.
+Link Helm is a browser identity router for macOS and Windows. It receives HTTP and HTTPS links from the system and routes them to a specific browser Profile according to the source application, domain, and your rules. This keeps work accounts, personal accounts, and other browsing contexts separated.
 
 For example, Link Helm can:
 
@@ -11,27 +11,27 @@ For example, Link Helm can:
 - Ask which browser identity to use when no rule matches.
 - Pause automatic routing or show the identity selector for only the next link.
 
-Link Helm is built with Rust and Tauri 2 and currently targets macOS 13 or later.
+Link Helm is built with Rust and Tauri 2 and targets macOS 13 or later and Windows 10/11 x64.
 
 ## Compatibility Status
 
 | Platform | Browser | Status |
 | --- | --- | --- |
-| macOS | Google Chrome | Validated |
-| macOS | Microsoft Edge, Brave, Firefox | Adapter-level support; not fully validated |
-| Windows and Linux | All browsers | Planned |
+| macOS | Chrome, Edge, Brave, Firefox | Validated |
+| Windows 10/11 x64 | Chrome, Edge, Brave, Firefox | Validated |
+| Linux | All browsers | Planned |
 
 ## Intended Audience
 
-- macOS users who want to select browser Profiles automatically by application and domain.
+- macOS and Windows users who want to select browser Profiles automatically by application and domain.
 - Rust and Tauri developers who want to build Link Helm from source, change its routing behavior, or add browser adapters.
 
 ## Features
 
-- Match routing rules by source application Bundle ID and domain.
+- Match routing rules by source application ID and domain.
 - Discover browser Profiles from Chrome, Edge, Brave, and Firefox.
 - Route to a specified Profile, the active Profile in a browser, the globally active Profile, or an interactive prompt.
-- Provide a menu bar controller, settings window, and keyboard-accessible identity selector.
+- Provide a menu bar or system tray controller, settings window, and keyboard-accessible identity selector.
 - Preview rules, test Profile opening, and import or export configuration.
 - Retain only domains and stable identifiers in diagnostics; URL paths, query values, and fragments are not persisted.
 - Provide English and Simplified Chinese interfaces with a persistent language preference.
@@ -40,12 +40,12 @@ Link Helm is built with Rust and Tauri 2 and currently targets macOS 13 or later
 
 Building Link Helm from source requires:
 
-- macOS 13 or later.
+- macOS 13 or later, or Windows 10/11 x64.
 - A [stable Rust toolchain](https://www.rust-lang.org/tools/install).
-- Xcode Command Line Tools.
+- Xcode Command Line Tools on macOS, or Visual Studio Build Tools with the Desktop development with C++ workload on Windows.
 - Tauri CLI 2.
 
-Install Xcode Command Line Tools:
+On macOS, install Xcode Command Line Tools:
 
 ```bash
 xcode-select --install
@@ -103,7 +103,7 @@ Run the development build from the repository root:
 cargo run -p link-helm-desktop
 ```
 
-Link Helm starts in the background and remains in the macOS menu bar. It does not open the settings window automatically. Click the Link Helm menu bar icon, then select **Open Settings...** or **打开设置...**.
+Link Helm starts in the background and remains in the macOS menu bar or Windows system tray. It does not open the settings window automatically. Click the Link Helm icon, then select **Open Settings...** or **打开设置...**.
 
 After all dependencies have been downloaded, you can also run offline:
 
@@ -151,20 +151,37 @@ target/x86_64-apple-darwin/release/bundle/dmg/Link Helm_<version>_x64.dmg
 target/aarch64-apple-darwin/release/bundle/dmg/Link Helm_<version>_aarch64.dmg
 ```
 
+## Build the Windows App
+
+Run the build on Windows 10/11 x64 from the Tauri project directory:
+
+```powershell
+cd apps/desktop
+cargo tauri build --bundles nsis
+```
+
+The NSIS installer is generated under `target\release\bundle\nsis`. Install it normally, start Link Helm from the Start menu, and use its system tray icon to open settings.
+
 ## First-Time Setup
 
-1. Open Link Helm settings from the menu bar.
+1. Open Link Helm settings from its menu bar or system tray icon.
 2. Rescan browser Profiles under **Browsers & Profiles / 浏览器与身份**.
 3. Create a rule under **Rules / 规则**, selecting a source application, an optional domain, and a target Profile.
 4. Preview the rule, then use the Profile test on the General page to verify the target browser.
-5. To receive all external web links, click **Set as Default / 设为默认** and complete macOS authorization. You can also select Link Helm manually under **System Settings > Desktop & Dock > Default web browser**.
+5. To receive all external web links, click **Set as Default / 设为默认**. On macOS, complete authorization or select Link Helm under **System Settings > Desktop & Dock > Default web browser**. On Windows, select Link Helm for both HTTP and HTTPS in the Default Apps page that opens.
 
-Link Helm changes the default browser only after you explicitly request it and complete macOS authorization. You can restore the previous browser from the same system setting after testing.
+Link Helm changes the default browser only after you explicitly request it and complete the operating system confirmation. Windows does not allow applications to force this choice. You can restore the previous browser from the same system setting after testing.
 
 Test URL delivery without changing the default browser:
 
 ```bash
 open -a "Link Helm" 'https://example.com/test'
+```
+
+On Windows, start the installed executable with a URL. A running Link Helm instance receives the URL through its single-instance activation path:
+
+```powershell
+.\target\debug\link-helm-desktop.exe "https://example.com/test"
 ```
 
 ## Development
@@ -184,6 +201,7 @@ The project is organized as a Cargo workspace:
 | `crates/browser-adapters` | Chromium and Firefox Profile adapters |
 | `crates/platform-api` | Platform capability interfaces |
 | `crates/platform-macos` | Launch Services, Accessibility, and macOS execution |
+| `crates/platform-windows` | Win32 process discovery, registry integration, and Windows execution |
 | `crates/config-store` | Configuration loading, validation, and atomic writes |
 | `apps/desktop/dist` | Settings UI, identity selector, and localization resources |
 | `apps/desktop/src-tauri` | Tauri commands, tray menu, windows, and desktop state |
@@ -194,6 +212,7 @@ Common extension points:
 - Routing semantics: start in `router-model` and `router-core`, keeping models and decisions independent of the desktop UI.
 - Browser support: implement Profile discovery and opening behavior in `browser-adapters`, using platform capabilities through `platform-api`.
 - macOS integration: edit `platform-macos` and keep platform details out of the core routing modules.
+- Windows integration: edit `platform-windows` and keep registry and Win32 details out of the core routing modules.
 - Desktop commands: register commands in `apps/desktop/src-tauri/src/commands.rs` and expose them explicitly through the Tauri handler in `lib.rs`.
 
 Before submitting changes, run:
@@ -221,7 +240,7 @@ If the command is unavailable, run the `cargo install tauri-cli` command from th
 
 ### No window appears after startup
 
-This is expected. Link Helm starts in the background and remains in the menu bar. Open settings from the menu bar icon. If the icon is missing, check the terminal output for a startup error.
+This is expected. Link Helm starts in the background and remains in the menu bar or system tray. Open settings from the Link Helm icon. If the icon is missing, check the terminal output for a startup error.
 
 ### Offline builds report missing dependencies
 
@@ -233,15 +252,15 @@ Confirm that the browser is installed and has at least one Profile, then rescan 
 
 ### External links do not reach Link Helm
 
-Confirm that Link Helm is the default HTTP and HTTPS handler. During development, use `open -a "Link Helm" 'https://example.com/test'` to test URL events directly without changing the default browser.
+Confirm that Link Helm is the default HTTP and HTTPS handler. During development, use the platform-specific command from First-Time Setup to test URL delivery directly without changing the default browser.
 
 ### Active Profile tracking is unreliable
 
-Check and grant Accessibility permission in settings. Link Helm uses this permission to observe foreground browsers and windows reliably; some active identity behavior is limited without it.
+On macOS, check and grant Accessibility permission in settings. Windows foreground-process observation does not require this permission.
 
 ## Configuration and Privacy
 
-Link Helm stores these files in its macOS application data directory:
+Link Helm stores these files in its operating system application data directory:
 
 - `config.json`: routing rules.
 - `preferences.json`: application preferences such as interface language.

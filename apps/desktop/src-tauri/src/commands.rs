@@ -8,9 +8,13 @@ use serde::Serialize;
 use tauri::{AppHandle, Manager, State};
 
 use crate::diagnostics::DiagnosticEvent;
+#[cfg(target_os = "macos")]
+use crate::platform::DesktopPlatformAdapter;
+use crate::platform::SystemIntegrationStatus;
 use crate::preferences::{AppLocale, PreferencesStore};
 use crate::state::{BrowserInstallation, ConfigImportPreview, DesktopService};
 
+#[cfg(target_os = "macos")]
 const SYSTEM_SETTINGS_BUNDLE_ID: &str = "com.apple.systempreferences";
 
 pub struct AppState {
@@ -18,11 +22,13 @@ pub struct AppState {
     pub preferences: Mutex<PreferencesStore>,
 }
 
+#[cfg(target_os = "macos")]
 #[derive(Default)]
 struct FocusReturnTracker {
     system_settings_seen: bool,
 }
 
+#[cfg(target_os = "macos")]
 impl FocusReturnTracker {
     fn observe(&mut self, frontmost_bundle_id: Option<&str>) -> bool {
         if frontmost_bundle_id == Some(SYSTEM_SETTINGS_BUNDLE_ID) {
@@ -35,8 +41,9 @@ impl FocusReturnTracker {
 }
 
 fn restore_settings_after_system_settings(app: AppHandle) {
+    #[cfg(target_os = "macos")]
     std::thread::spawn(move || {
-        let platform = platform_macos::MacOsPlatformAdapter::new();
+        let platform = DesktopPlatformAdapter::new();
         let mut tracker = FocusReturnTracker::default();
 
         loop {
@@ -49,6 +56,9 @@ fn restore_settings_after_system_settings(app: AppHandle) {
             std::thread::sleep(std::time::Duration::from_millis(100));
         }
     });
+
+    #[cfg(not(target_os = "macos"))]
+    let _ = app;
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -62,7 +72,7 @@ pub struct AppSnapshot {
     pub diagnostics: Vec<DiagnosticEvent>,
     pub diagnostics_limit: usize,
     pub diagnostics_error: Option<String>,
-    pub system: platform_macos::SystemIntegrationStatus,
+    pub system: SystemIntegrationStatus,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -129,7 +139,7 @@ pub fn set_locale(
 pub async fn set_default_browser(
     app: AppHandle,
     state: State<'_, AppState>,
-) -> Result<platform_macos::SystemIntegrationStatus, String> {
+) -> Result<SystemIntegrationStatus, String> {
     let platform = {
         let service = state.service.lock().map_err(|error| error.to_string())?;
         *service.platform()
@@ -322,10 +332,7 @@ pub fn clear_diagnostics(state: State<'_, AppState>) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn set_diagnostics_limit(
-    state: State<'_, AppState>,
-    limit: usize,
-) -> Result<(), String> {
+pub fn set_diagnostics_limit(state: State<'_, AppState>, limit: usize) -> Result<(), String> {
     state
         .service
         .lock()

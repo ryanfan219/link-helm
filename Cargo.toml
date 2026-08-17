@@ -6,6 +6,7 @@ members = [
   "crates/browser-adapters",
   "crates/platform-api",
   "crates/platform-macos",
+  "crates/platform-windows",
   "crates/config-store",
   "apps/desktop/src-tauri",
 ]

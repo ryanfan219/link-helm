@@ -30,7 +30,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": ["icons/icon.png"],
+    "icon": ["icons/icon.png", "icons/icon.icns", "icons/icon.ico"],
     "category": "Utility",
     "shortDescription": "Link Helm cross-browser identity router",
     "longDescription": "Route external links to the right browser identity.",

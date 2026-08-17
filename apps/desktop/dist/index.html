@@ -38,10 +38,10 @@
               </div>
             </div>
             <div class="setting-row">
-              <div><h2 data-i18n="general.defaultBrowser">Default browser</h2><p data-i18n="general.defaultBrowserHelp">Link Helm must be selected in macOS to receive external web links.</p></div>
-              <div class="setting-action"><span id="default-status" class="badge neutral" data-i18n="status.checking">Checking...</span><div class="setting-buttons"><button id="set-default" class="primary" data-i18n="action.setDefault">Set as Default</button><button id="open-default-settings" data-i18n="action.openDefaultSettings">System Settings...</button></div></div>
+              <div><h2 data-i18n="general.defaultBrowser">Default browser</h2><p data-i18n="general.defaultBrowserHelp">Link Helm must be selected in system settings to receive external web links.</p></div>
+              <div class="setting-action"><span id="default-status" class="badge neutral" data-i18n="status.checking">Checking...</span><div class="setting-buttons"><button id="set-default" class="primary" data-i18n="action.setDefault">Set as Default</button><button id="open-default-settings" data-i18n="action.openDefaultSettings">Default Browser Settings...</button></div></div>
             </div>
-            <div class="setting-row">
+            <div id="accessibility-setting" class="setting-row">
               <div><h2 data-i18n="general.accessibility">Accessibility</h2><p data-i18n="general.accessibilityHelp">Required for reliable foreground browser and window tracking.</p></div>
               <div class="setting-action"><span id="accessibility-status" class="badge neutral" data-i18n="status.checking">Checking...</span><button id="open-accessibility" data-i18n="action.openSettings">Open Settings</button></div>
             </div>
@@ -87,7 +87,7 @@
           <header><h1 data-i18n="rules.title">Routing rules</h1><p data-i18n="rules.subtitle">Rules are evaluated by specificity, then by their displayed order.</p></header>
           <div id="rules-inactive" class="inline-warning" role="status" hidden data-i18n="rules.inactive">Rules are not receiving external links because Link Helm is not the default browser.</div>
           <div class="preview-bar">
-            <label><span data-i18n="field.sourceApp">Source app bundle ID</span><input id="preview-source" value="com.apple.mail" /></label>
+            <label><span data-i18n="field.sourceApp">Source application ID</span><input id="preview-source" value="com.apple.mail" /></label>
             <label><span data-i18n="field.url">URL</span><input id="preview-url" type="url" value="https://example.com" /></label>
             <button id="preview-button" data-i18n="action.preview">Preview</button>
             <output id="preview-result" data-i18n="rules.noPreview">No preview yet.</output>

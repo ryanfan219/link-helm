@@ -1,6 +1,8 @@
 //! macOS integration for browser discovery, direct launch, default-handler
 //! status, and Accessibility permission state.
 
+#![cfg(target_os = "macos")]
+
 mod accessibility;
 mod launch_services;
 
@@ -27,6 +29,7 @@ pub struct SystemIntegrationStatus {
     pub https_handler: Option<String>,
     pub is_default_browser: bool,
     pub accessibility_trusted: bool,
+    pub accessibility_required: bool,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -241,6 +244,7 @@ impl MacOsPlatformAdapter {
             http_handler,
             https_handler,
             accessibility_trusted: accessibility::is_trusted(),
+            accessibility_required: true,
         }
     }
 

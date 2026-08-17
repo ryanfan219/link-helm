@@ -22,5 +22,11 @@ router-model = { path = "../../../crates/router-model" }
 router-core = { path = "../../../crates/router-core" }
 browser-adapters = { path = "../../../crates/browser-adapters" }
 platform-api = { path = "../../../crates/platform-api" }
-platform-macos = { path = "../../../crates/platform-macos" }
 config-store = { path = "../../../crates/config-store" }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+platform-macos = { path = "../../../crates/platform-macos" }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+platform-windows = { path = "../../../crates/platform-windows" }
+tauri-plugin-single-instance = "2.4.3"
