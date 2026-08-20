@@ -277,6 +277,10 @@ Configuration and diagnostic data are written using temporary-file replacement. 
 
 Link Helm is developed with assistance from AI tools for design exploration, implementation, review, and documentation. AI-assisted changes are reviewed by the project maintainer, who remains responsible for the project's technical decisions and releases.
 
+## Community
+
+[LINUX DO](https://linux.do) — A Chinese-language community for developers and technology enthusiasts.
+
 ## License
 
 Link Helm is available under the [MIT License](LICENSE). You may use, copy, modify, merge, publish, and commercially distribute the project as long as the license and copyright notice are retained.
