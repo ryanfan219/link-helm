@@ -19,7 +19,7 @@ Link Helm 使用 Rust 和 Tauri 2 构建，面向 macOS 13 及以上版本、Win
 | --- | --- | --- |
 | macOS | Chrome、Edge、Brave、Firefox | 已验证 |
 | Windows 10/11 x64 | Chrome、Edge、Brave、Firefox | 已验证 |
-| Linux（X11/XDG） | Chrome、Edge、Brave、Firefox | 已支持 |
+| Linux（X11/XDG） | Chrome、Edge、Brave、Firefox | 已验证 |
 
 ## 适用读者
 
@@ -30,6 +30,7 @@ Link Helm 使用 Rust 和 Tauri 2 构建，面向 macOS 13 及以上版本、Win
 
 - 按来源应用标识符和域名匹配路由规则。
 - 发现 Chrome、Edge、Brave 和 Firefox 的浏览器 Profile。
+- 浏览器已安装但没有可发现的 Profile 时，可按该浏览器自身的默认行为打开链接。
 - 支持指定 Profile、浏览器内活动 Profile、全局活动 Profile 和始终询问等目标模式。
 - 提供菜单栏或系统托盘入口、设置窗口和键盘可操作的身份选择器。
 - 提供规则预览、Profile 打开测试、配置导入与导出。
@@ -105,7 +106,7 @@ cargo fetch
 cargo run -p link-helm-desktop
 ```
 
-Link Helm 启动后常驻 macOS 菜单栏或 Windows 系统托盘，不会自动显示主窗口。点击 Link Helm 图标，然后选择 **Open Settings...** 或 **打开设置...**。
+在 macOS 和 Windows 上，Link Helm 启动后常驻菜单栏或系统托盘；点击 Link Helm 图标，再选择 **Open Settings...** 或 **打开设置...**。在 Linux 上正常启动会直接打开设置窗口；桌面环境支持时也会提供系统托盘入口。
 
 如果依赖已经下载完成，也可以离线运行：
 
@@ -128,6 +129,22 @@ cargo tauri build --bundles app --no-sign
 target/release/bundle/macos/Link Helm.app
 ```
 
+分别打包 Intel 和 Apple Silicon DMG 时，先安装两个 Rust target：
+
+```bash
+rustup target add x86_64-apple-darwin aarch64-apple-darwin
+```
+
+然后在 Tauri 项目目录执行：
+
+```bash
+cd apps/desktop
+cargo tauri build --target x86_64-apple-darwin --bundles dmg --no-sign
+cargo tauri build --target aarch64-apple-darwin --bundles dmg --no-sign
+```
+
+DMG 位于 `target/<target>/release/bundle/dmg/`。
+
 ## 构建 Windows 应用
 
 在 Windows 10/11 x64 上进入 Tauri 项目目录构建：
@@ -139,15 +156,42 @@ cargo tauri build --bundles nsis
 
 NSIS 安装程序位于 `target\release\bundle\nsis`。正常安装后，从开始菜单启动 Link Helm，并通过系统托盘图标打开设置。
 
+## 构建 Linux 应用
+
+Linux 安装包需要在 Linux 环境中构建。以 Debian 12 或 Ubuntu 24.04 为例，先安装原生依赖：
+
+```bash
+sudo apt update
+sudo apt install -y build-essential curl pkg-config \
+  libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev \
+  libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils
+```
+
+然后在 Tauri 项目目录同时构建 `.deb` 和 AppImage：
+
+```bash
+cd apps/desktop
+cargo tauri build --bundles deb,appimage --no-sign
+```
+
+产物位于：
+
+```text
+target/release/bundle/deb/
+target/release/bundle/appimage/
+```
+
+Ubuntu 22.04 可能只提供 `libwebkit2gtk-4.0-dev`。从 macOS 或 Windows 发起 Linux 打包时，需要使用 Linux 虚拟机、CI Runner 或 Docker 容器，因为 Tauri Linux 包依赖 Linux 系统库。
+
 ## 首次设置
 
 1. 从 Link Helm 的菜单栏或系统托盘图标打开设置。
 2. 在 **Browsers & Profiles / 浏览器与身份** 中重新扫描浏览器 Profile。
 3. 在 **Rules / 规则** 中创建规则，选择来源应用、可选域名和目标 Profile。
 4. 使用规则预览确认匹配结果，再使用通用页的 Profile 测试功能验证目标浏览器。
-5. 需要接收所有外部网页链接时，点击 **Set as Default / 设为默认**。macOS 上完成授权，或在 **系统设置 > 桌面与程序坞 > 默认网页浏览器** 中选择 Link Helm；Windows 上在打开的“默认应用”页面中分别为 HTTP 和 HTTPS 选择 Link Helm。
+5. 需要接收所有外部网页链接时，点击 **Set as Default / 设为默认**。macOS 上完成授权，或在 **系统设置 > 桌面与程序坞 > 默认网页浏览器** 中选择 Link Helm；Windows 上在打开的“默认应用”页面中分别为 HTTP 和 HTTPS 选择 Link Helm；Linux 上在打开的默认应用设置或桌面环境的 **Default Applications / 默认应用** 中，将网页链接处理程序设为 Link Helm。
 
-Link Helm 只会在用户主动执行设为默认操作并完成系统确认后修改默认浏览器。Windows 不允许应用强制完成这一选择。测试完成后，可在同一系统设置中恢复原浏览器。
+Link Helm 只会在用户主动执行设为默认操作并完成系统确认后修改默认浏览器。Windows 和部分 Linux 桌面不允许应用强制完成这一选择。测试完成后，可在同一系统设置中恢复原浏览器。
 
 测试应用能否接收 URL，而不修改系统默认浏览器：
 
@@ -159,6 +203,12 @@ Windows 上可用 URL 启动已安装程序；Link Helm 已运行时，URL 会�
 
 ```powershell
 .\target\debug\link-helm-desktop.exe "https://example.com/test"
+```
+
+Linux 安装完成后，可通过已注册的桌面处理程序测试：
+
+```bash
+xdg-open 'https://example.com/test'
 ```
 
 ## 二次开发
@@ -227,7 +277,7 @@ cargo tauri --version
 
 ### 浏览器 Profile 列表为空
 
-确认浏览器已经安装并至少创建过一个 Profile，然后在 **Browsers & Profiles / 浏览器与身份** 中重新扫描。不同浏览器的 Profile 数据目录和可用能力可能不同。
+确认浏览器已经安装，然后在 **Browsers & Profiles / 浏览器与身份** 中重新扫描。如果浏览器没有可发现的 Profile，Link Helm 会提供一个 **默认** 身份，按浏览器自身的默认行为打开链接；它不会在浏览器中创建 Profile。
 
 ### 外部链接没有进入 Link Helm
 

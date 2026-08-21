@@ -19,7 +19,7 @@ Link Helm is built with Rust and Tauri 2 and targets macOS 13 or later, Windows 
 | --- | --- | --- |
 | macOS | Chrome, Edge, Brave, Firefox | Validated |
 | Windows 10/11 x64 | Chrome, Edge, Brave, Firefox | Validated |
-| Linux (X11/XDG) | Chrome, Edge, Brave, Firefox | Supported |
+| Linux (X11/XDG) | Chrome, Edge, Brave, Firefox | Validated |
 
 ## Intended Audience
 
@@ -30,6 +30,7 @@ Link Helm is built with Rust and Tauri 2 and targets macOS 13 or later, Windows 
 
 - Match routing rules by source application ID and domain.
 - Discover browser Profiles from Chrome, Edge, Brave, and Firefox.
+- Route through a browser's default behavior when it is installed but exposes no Profiles.
 - Route to a specified Profile, the active Profile in a browser, the globally active Profile, or an interactive prompt.
 - Provide a menu bar or system tray controller, settings window, and keyboard-accessible identity selector.
 - Preview rules, test Profile opening, and import or export configuration.
@@ -105,7 +106,7 @@ Run the development build from the repository root:
 cargo run -p link-helm-desktop
 ```
 
-Link Helm starts in the background and remains in the macOS menu bar or Windows system tray. It does not open the settings window automatically. Click the Link Helm icon, then select **Open Settings...** or **打开设置...**.
+On macOS and Windows, Link Helm starts in the background and remains in the menu bar or system tray. Click the Link Helm icon, then select **Open Settings...** or **打开设置...**. On Linux, a normal launch opens the settings window and also provides a system tray entry when the desktop supports one.
 
 After all dependencies have been downloaded, you can also run offline:
 
@@ -164,15 +165,42 @@ cargo tauri build --bundles nsis
 
 The NSIS installer is generated under `target\release\bundle\nsis`. Install it normally, start Link Helm from the Start menu, and use its system tray icon to open settings.
 
+## Build the Linux App
+
+Build Linux packages in a Linux environment. On Debian 12 or Ubuntu 24.04, install the native dependencies first:
+
+```bash
+sudo apt update
+sudo apt install -y build-essential curl pkg-config \
+  libglib2.0-dev libgtk-3-dev libwebkit2gtk-4.1-dev \
+  libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils
+```
+
+Then build both the Debian package and AppImage from the Tauri project directory:
+
+```bash
+cd apps/desktop
+cargo tauri build --bundles deb,appimage --no-sign
+```
+
+The packages are generated under:
+
+```text
+target/release/bundle/deb/
+target/release/bundle/appimage/
+```
+
+Ubuntu 22.04 may provide `libwebkit2gtk-4.0-dev` instead of `libwebkit2gtk-4.1-dev`. When building from macOS or Windows, use a Linux VM, CI runner, or Docker container because Tauri Linux packages require Linux system libraries.
+
 ## First-Time Setup
 
 1. Open Link Helm settings from its menu bar or system tray icon.
 2. Rescan browser Profiles under **Browsers & Profiles / 浏览器与身份**.
 3. Create a rule under **Rules / 规则**, selecting a source application, an optional domain, and a target Profile.
 4. Preview the rule, then use the Profile test on the General page to verify the target browser.
-5. To receive all external web links, click **Set as Default / 设为默认**. On macOS, complete authorization or select Link Helm under **System Settings > Desktop & Dock > Default web browser**. On Windows, select Link Helm for both HTTP and HTTPS in the Default Apps page that opens.
+5. To receive all external web links, click **Set as Default / 设为默认**. On macOS, complete authorization or select Link Helm under **System Settings > Desktop & Dock > Default web browser**. On Windows, select Link Helm for both HTTP and HTTPS in the Default Apps page that opens. On Linux, use the opened default-app settings or your desktop's **Default Applications** page to choose Link Helm for web links.
 
-Link Helm changes the default browser only after you explicitly request it and complete the operating system confirmation. Windows does not allow applications to force this choice. You can restore the previous browser from the same system setting after testing.
+Link Helm changes the default browser only after you explicitly request it and complete the operating system confirmation. Windows and some Linux desktops do not allow applications to force this choice. You can restore the previous browser from the same system setting after testing.
 
 Test URL delivery without changing the default browser:
 
@@ -184,6 +212,12 @@ On Windows, start the installed executable with a URL. A running Link Helm insta
 
 ```powershell
 .\target\debug\link-helm-desktop.exe "https://example.com/test"
+```
+
+On Linux, use the registered desktop handler after installing a package:
+
+```bash
+xdg-open 'https://example.com/test'
 ```
 
 ## Development
@@ -252,7 +286,7 @@ The `--offline` option can use only crates already cached on the machine. Run `c
 
 ### The browser Profile list is empty
 
-Confirm that the browser is installed and has at least one Profile, then rescan under **Browsers & Profiles / 浏览器与身份**. Profile storage and available capabilities differ between browsers.
+Confirm that the browser is installed, then rescan under **Browsers & Profiles / 浏览器与身份**. If a browser exposes no Profiles, Link Helm provides a **Default** identity that opens links using that browser's own default behavior; it does not create a browser Profile.
 
 ### External links do not reach Link Helm
 

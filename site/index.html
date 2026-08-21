@@ -4,12 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f4f7f5" />
-    <meta name="description" content="Link Helm routes macOS and Windows links to the right browser profile by source app and domain." />
-    <meta property="og:title" content="Link Helm - browser identity routing for macOS and Windows" />
+    <meta name="description" content="Link Helm routes macOS, Windows, and Linux links to the right browser profile by source app and domain." />
+    <meta property="og:title" content="Link Helm - browser identity routing for macOS, Windows, and Linux" />
     <meta property="og:description" content="Send every link to the browser profile where it belongs." />
     <meta property="og:image" content="assets/link-helm-settings.png" />
     <meta property="og:url" content="https://ryanfan219.github.io/link-helm/" />
-    <title>Link Helm - Browser identity routing for macOS and Windows</title>
+    <title>Link Helm - Browser identity routing for macOS, Windows, and Linux</title>
     <link rel="canonical" href="https://ryanfan219.github.io/link-helm/" />
     <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
@@ -57,8 +57,8 @@
             </a>
           </div>
           <div class="hero-meta" aria-label="Current support status" data-i18n-aria="supportLabel">
-            <span data-i18n="platformRequirement">macOS 13+ / Windows 10/11 x64</span>
-            <span data-i18n="platformValidated">macOS and Windows validated</span>
+            <span data-i18n="platformRequirement">macOS 13+ / Windows 10/11 x64 / Linux XDG</span>
+            <span data-i18n="platformValidated">macOS, Windows, and Linux validated</span>
             <span data-i18n="openSource">MIT licensed</span>
           </div>
         </div>
@@ -142,8 +142,8 @@
       <section class="compatibility-band" id="compatibility" aria-labelledby="compatibility-title">
         <div class="section-shell">
           <div class="section-heading split-heading">
-            <div><p class="eyebrow" data-i18n="compatibilityEyebrow">Current support</p><h2 id="compatibility-title" data-i18n="compatibilityTitle">Validated on macOS and Windows</h2></div>
-            <p data-i18n="compatibilityDetail">Chrome, Edge, Brave, and Firefox are supported on both current desktop platforms. Linux remains planned.</p>
+            <div><p class="eyebrow" data-i18n="compatibilityEyebrow">Current support</p><h2 id="compatibility-title" data-i18n="compatibilityTitle">Validated on macOS, Windows, and Linux</h2></div>
+            <p data-i18n="compatibilityDetail">Chrome, Edge, Brave, and Firefox routing has been validated across all three desktop platforms.</p>
           </div>
           <div class="table-wrap">
             <table>
@@ -151,7 +151,7 @@
               <tbody>
                 <tr><td>macOS 13+</td><td>Chrome, Edge, Brave, Firefox</td><td><span class="status verified" data-i18n="statusValidated">Validated</span></td></tr>
                 <tr><td>Windows 10/11 x64</td><td>Chrome, Edge, Brave, Firefox</td><td><span class="status verified" data-i18n="statusValidated">Validated</span></td></tr>
-                <tr><td>Linux</td><td data-i18n="allBrowsers">All browsers</td><td><span class="status planned" data-i18n="statusPlanned">Planned</span></td></tr>
+                <tr><td>Linux (X11/XDG)</td><td>Chrome, Edge, Brave, Firefox</td><td><span class="status verified" data-i18n="statusValidated">Validated</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -162,18 +162,34 @@
         <div class="section-shell download-layout">
           <div>
             <p class="eyebrow" data-i18n="downloadEyebrow">Source build</p>
-            <h2 id="download-title" data-i18n="downloadTitle">Build Link Helm for macOS or Windows</h2>
-            <p class="download-copy" data-i18n="downloadDetail">Package a macOS app or DMG, or build an NSIS installer on Windows 10/11 x64. After installing on Windows, open settings from the system tray and select Link Helm for both HTTP and HTTPS in Default Apps.</p>
+            <h2 id="download-title" data-i18n="downloadTitle">Package Link Helm for all three platforms</h2>
+            <p class="download-copy" data-i18n="downloadDetail">Install Rust stable, Tauri CLI 2, and each platform's native build prerequisites. Build on the target operating system; Linux packages require Linux system libraries.</p>
           </div>
-          <div class="download-actions">
-            <a class="button primary" href="https://github.com/ryanfan219/link-helm#build-the-macos-app">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
-              <span data-i18n="macInstructions">macOS packaging</span>
-            </a>
-            <a class="button secondary" href="https://github.com/ryanfan219/link-helm#build-the-windows-app">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
-              <span data-i18n="windowsInstructions">Windows packaging</span>
-            </a>
+          <div class="package-grid">
+            <article class="package-step">
+              <h3>macOS</h3>
+              <p data-i18n="macPackageDetail">Build an unsigned app or DMG on macOS with Xcode Command Line Tools installed.</p>
+              <pre><code>cd apps/desktop
+cargo tauri build --bundles dmg --no-sign</code></pre>
+              <p class="package-output"><span data-i18n="outputLabel">Output</span>: <code>target/release/bundle/dmg/</code></p>
+              <a class="text-link" href="https://github.com/ryanfan219/link-helm#build-the-macos-app" data-i18n="fullInstructions">Full instructions</a>
+            </article>
+            <article class="package-step">
+              <h3>Windows</h3>
+              <p data-i18n="windowsPackageDetail">Build the NSIS installer on Windows 10/11 x64 with Visual Studio Build Tools installed.</p>
+              <pre><code>cd apps/desktop
+cargo tauri build --bundles nsis</code></pre>
+              <p class="package-output"><span data-i18n="outputLabel">Output</span>: <code>target\release\bundle\nsis\</code></p>
+              <a class="text-link" href="https://github.com/ryanfan219/link-helm#build-the-windows-app" data-i18n="fullInstructions">Full instructions</a>
+            </article>
+            <article class="package-step">
+              <h3>Linux</h3>
+              <p data-i18n="linuxPackageDetail">Build the Debian package and AppImage on Linux after installing WebKitGTK, AppIndicator, and XDG dependencies.</p>
+              <pre><code>cd apps/desktop
+cargo tauri build --bundles deb,appimage --no-sign</code></pre>
+              <p class="package-output"><span data-i18n="outputLabel">Output</span>: <code>target/release/bundle/{deb,appimage}/</code></p>
+              <a class="text-link" href="https://github.com/ryanfan219/link-helm#build-the-linux-app" data-i18n="fullInstructions">Full instructions</a>
+            </article>
           </div>
         </div>
       </section>
