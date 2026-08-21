@@ -12,6 +12,11 @@ const RESCAN: &str = "rescan-profiles";
 const QUIT: &str = "quit";
 const TRAY_ID: &str = "main";
 
+#[cfg(target_os = "linux")]
+const TRAY_ICON: &[u8] = include_bytes!("../icons/icon.png");
+#[cfg(not(target_os = "linux"))]
+const TRAY_ICON: &[u8] = include_bytes!("../icons/tray-icon.png");
+
 pub fn show_settings(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("settings") {
         let _ = window.show();
@@ -70,10 +75,8 @@ pub fn setup(app: &App, locale: AppLocale) -> tauri::Result<()> {
     let menu = menu(app, locale, false, false)?;
 
     TrayIconBuilder::with_id(TRAY_ID)
-        .icon(tauri::image::Image::from_bytes(include_bytes!(
-            "../icons/tray-icon.png"
-        ))?)
-        .icon_as_template(true)
+        .icon(tauri::image::Image::from_bytes(TRAY_ICON)?)
+        .icon_as_template(cfg!(target_os = "macos"))
         .tooltip("Link Helm")
         .menu(&menu)
         .show_menu_on_left_click(true)

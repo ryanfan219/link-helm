@@ -24,6 +24,7 @@ pub struct RuntimeSnapshot {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum CandidateKind {
     SpecifiedProfile,
+    BrowserDefault,
     ActiveInBrowser,
     GloballyActive,
     NewTargetWindow,

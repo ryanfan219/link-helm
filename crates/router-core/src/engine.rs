@@ -153,6 +153,15 @@ fn decide_from_rule(rule: &RouteRule, runtime: &RuntimeSnapshot) -> RouteDecisio
                 }
             }
         }
+        TargetMode::BrowserDefault => open(
+            matched,
+            vec![OpenCandidate {
+                browser_id: rule.target.browser_id.clone().expect("validated rule"),
+                profile_id: None,
+                kind: CandidateKind::BrowserDefault,
+            }],
+            rule,
+        ),
         TargetMode::ActiveInBrowser => {
             let browser_id = rule.target.browser_id.clone().expect("validated rule");
             if let Some(session) = most_recent_available_session(runtime, Some(&browser_id)) {

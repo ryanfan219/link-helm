@@ -32,7 +32,13 @@ pub fn run() {
     let builder = tauri::Builder::default();
     #[cfg(any(target_os = "windows", target_os = "linux"))]
     let builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
-        routing::handle_url_args(app, args);
+        let handled_url = routing::handle_url_args(app, args);
+        #[cfg(target_os = "linux")]
+        if !handled_url {
+            tray::show_settings(app);
+        }
+        #[cfg(target_os = "windows")]
+        let _ = handled_url;
     }));
 
     let app = builder
@@ -74,8 +80,12 @@ pub fn run() {
                 window.set_title(locale.settings_title())?;
             }
             start_foreground_browser_observer(app.handle().clone());
-            #[cfg(any(target_os = "windows", target_os = "linux"))]
-            routing::handle_url_args(app.handle(), std::env::args());
+            #[cfg(target_os = "windows")]
+            let _ = routing::handle_url_args(app.handle(), std::env::args());
+            #[cfg(target_os = "linux")]
+            if !routing::handle_url_args(app.handle(), std::env::args()) {
+                tray::show_settings(app.handle());
+            }
             Ok(())
         })
         .on_window_event(|window, event| {

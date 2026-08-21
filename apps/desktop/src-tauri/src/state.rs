@@ -51,7 +51,9 @@ fn candidate_disposition(candidate: &router_model::routing::OpenCandidate) -> Op
             OpenDisposition::ActiveWindow
         }
         CandidateKind::NewTargetWindow => OpenDisposition::NewWindow,
-        CandidateKind::SpecifiedProfile => OpenDisposition::ExistingWindow,
+        CandidateKind::SpecifiedProfile | CandidateKind::BrowserDefault => {
+            OpenDisposition::ExistingWindow
+        }
     }
 }
 
@@ -402,29 +404,38 @@ impl DesktopService {
                 for candidate in decision.candidates {
                     let disposition = candidate_disposition(&candidate);
                     last_identity_id = candidate_identity_id(&candidate);
-                    let Some(profile_id) = candidate.profile_id else {
-                        continue;
-                    };
-                    let profile = self
-                        .browsers
-                        .iter()
-                        .flat_map(|browser| browser.profiles.iter())
-                        .find(|profile| {
-                            profile.browser_id == candidate.browser_id
-                                && profile.profile_id == profile_id
+                    let intent = if candidate.kind == CandidateKind::BrowserDefault {
+                        Ok(platform_api::BrowserOpenIntent {
+                            browser_id: candidate.browser_id.clone(),
+                            profile_id: None,
+                            url: url.clone(),
+                            args: vec![url.as_str().to_string()],
+                            disposition,
                         })
-                        .cloned();
-                    let Some(profile) = profile else {
-                        last_error = Some("profile_unavailable".to_string());
-                        continue;
+                    } else {
+                        let Some(profile_id) = candidate.profile_id.as_ref() else {
+                            continue;
+                        };
+                        let profile = self
+                            .browsers
+                            .iter()
+                            .flat_map(|browser| browser.profiles.iter())
+                            .find(|profile| {
+                                profile.browser_id == candidate.browser_id
+                                    && profile.profile_id == *profile_id
+                            })
+                            .cloned();
+                        let Some(profile) = profile else {
+                            last_error = Some("profile_unavailable".to_string());
+                            continue;
+                        };
+                        self.build_open_intent(&profile, &url, disposition)
                     };
-                    match self
-                        .build_open_intent(&profile, &url, disposition)
-                        .and_then(|intent| {
-                            self.platform
-                                .execute(intent)
-                                .map_err(|error| error.to_string())
-                        }) {
+                    match intent.and_then(|intent| {
+                        self.platform
+                            .execute(intent)
+                            .map_err(|error| error.to_string())
+                    }) {
                         Ok(_) => {
                             self.diagnostics.record_route(
                                 &source_app,

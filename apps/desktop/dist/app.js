@@ -71,6 +71,21 @@ function profileOptions(selected = "") {
   }).join("");
 }
 
+function ruleProfileOptions(selected = "") {
+  const profileEntries = allProfiles().map(({browser, profile}) => {
+    const value = encodeProfileValue(browser.descriptor.id, profile.profile_id);
+    return `<option value="${escapeHtml(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(browser.descriptor.display_name)} — ${escapeHtml(profile.display_name)}</option>`;
+  });
+  const browserDefaults = (state.snapshot?.browsers ?? [])
+    .filter((browser) => browser.installed && (!browser.profiles.length || encodeProfileValue(browser.descriptor.id, null) === selected))
+    .map((browser) => {
+      const value = encodeProfileValue(browser.descriptor.id, null);
+      return `<option value="${escapeHtml(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(browser.descriptor.display_name)} — ${escapeHtml(t("browser.defaultBehavior"))}</option>`;
+    });
+  const options = [...profileEntries, ...browserDefaults];
+  return options.length ? options.join("") : `<option value="">${escapeHtml(t("browser.noProfiles"))}</option>`;
+}
+
 function browserOptions(selected = "") {
   return (state.snapshot?.browsers ?? []).filter((browser) => browser.installed).map((browser) => `<option value="${escapeHtml(browser.descriptor.id)}" ${browser.descriptor.id === selected ? "selected" : ""}>${escapeHtml(browser.descriptor.display_name)}</option>`).join("");
 }
@@ -96,7 +111,7 @@ function render() {
   $("accessibility-status").className = `badge ${snapshot.system.accessibility_trusted ? "success" : "neutral"}`;
   $("open-accessibility").hidden = snapshot.system.accessibility_trusted;
   $("test-profile").innerHTML = profileOptions($("test-profile").value);
-  $("rule-profile").innerHTML = profileOptions($("rule-profile").value);
+  $("rule-profile").innerHTML = ruleProfileOptions($("rule-profile").value);
   $("rule-browser").innerHTML = browserOptions($("rule-browser").value);
   renderBrowsers();
   renderRules();
@@ -107,7 +122,7 @@ function renderBrowsers() {
   const list = $("browser-list");
   list.innerHTML = state.snapshot.browsers.map((browser) => {
     const capabilities = Object.entries(browser.capabilities).filter(([,value]) => value).map(([key]) => `<span class="capability">${escapeHtml(t(`capability.${key}`))}</span>`).join("");
-    const profiles = browser.profiles.length ? browser.profiles.map((profile) => `<div class="profile-row"><strong>${escapeHtml(profile.display_name)}</strong><span class="profile-id">${escapeHtml(profile.profile_id)}</span></div>`).join("") : `<div class="empty">${browser.installed ? escapeHtml(browser.error || t("browser.noProfiles")) : escapeHtml(t("browser.notInstalled"))}</div>`;
+    const profiles = browser.profiles.length ? browser.profiles.map((profile) => `<div class="profile-row"><strong>${escapeHtml(profile.display_name)}</strong><span class="profile-id">${escapeHtml(profile.profile_id)}</span></div>`).join("") : `<div class="empty">${browser.installed ? escapeHtml(browser.error || t("browser.noProfilesDefaultAvailable")) : escapeHtml(t("browser.notInstalled"))}</div>`;
     return `<article class="browser-item"><div class="browser-head"><div><h2>${escapeHtml(browser.descriptor.display_name)}</h2><div class="browser-id">${escapeHtml(browser.descriptor.id)}</div></div><span class="badge ${browser.installed ? "success" : "missing"}">${escapeHtml(t(browser.installed ? "status.installed" : "status.missing"))}</span></div><div class="capabilities">${capabilities}</div><div class="profile-list">${profiles}</div></article>`;
   }).join("");
 }
@@ -140,12 +155,12 @@ function selectRule(id) {
   $("rule-enabled").checked = rule.enabled;
   $("rule-source").value = matcherValues(rule.matcher.source_app).join("\n");
   $("rule-domain").value = matcherValues(rule.matcher.domain).join("\n");
-  $("rule-mode").value = rule.target.mode;
+  $("rule-mode").value = rule.target.mode === "browser_default" ? "specified_profile" : rule.target.mode;
   $("rule-enforcement").value = rule.enforcement;
   $("rule-fallback").value = rule.fallback_scope;
   $("rule-unavailable").value = rule.unavailable_action;
-  const profileValue = rule.target.browser_id && rule.target.profile_id ? encodeProfileValue(rule.target.browser_id, rule.target.profile_id) : "";
-  $("rule-profile").innerHTML = profileOptions(profileValue);
+  const profileValue = rule.target.browser_id && (rule.target.profile_id || rule.target.mode === "browser_default") ? encodeProfileValue(rule.target.browser_id, rule.target.profile_id || null) : "";
+  $("rule-profile").innerHTML = ruleProfileOptions(profileValue);
   $("rule-browser").innerHTML = browserOptions(rule.target.browser_id || "");
   updateModeFields();
   $("delete-rule").hidden = false;
@@ -162,7 +177,7 @@ function resetRuleForm() {
   $("rule-id").value = "";
   $("rule-name").value = "";
   $("editor-title").textContent = t("rules.newRule");
-  $("rule-profile").innerHTML = profileOptions();
+  $("rule-profile").innerHTML = ruleProfileOptions();
   $("rule-browser").innerHTML = browserOptions();
   $("delete-rule").hidden = true;
   $("save-rule").textContent = t("action.createRule");
@@ -184,25 +199,36 @@ function closeRuleDialog() {
 
 function updateModeFields() {
   const mode = $("rule-mode").value;
+  const [selectedBrowserId, selectedProfileId] = decodeProfileValue($("rule-profile").value);
+  const browserDefault = mode === "specified_profile" && selectedBrowserId && !selectedProfileId;
   $("rule-profile-label").hidden = mode !== "specified_profile";
   $("rule-browser-label").hidden = mode !== "active_in_browser";
-  $("policy-fields").hidden = mode === "ask";
+  $("policy-fields").hidden = mode === "ask" || browserDefault;
   if (mode === "ask") {
     $("rule-enforcement").value = "prefer";
     $("rule-fallback").value = "none";
     $("rule-unavailable").value = "ask";
   }
+  if (browserDefault) {
+    $("rule-enforcement").value = "prefer";
+    $("rule-fallback").value = "none";
+    $("rule-unavailable").value = "fail";
+  }
   if ($("rule-enforcement").value === "force") $("rule-fallback").value = "none";
 }
 
 function formRule() {
-  const mode = $("rule-mode").value;
+  let mode = $("rule-mode").value;
   let browserId = null, profileId = null;
   if (mode === "specified_profile") {
     [browserId, profileId] = decodeProfileValue($("rule-profile").value);
-    if (!browserId || !profileId) throw new Error(t("error.selectProfile"));
+    if (!browserId) throw new Error(t("error.selectProfile"));
+    if (!profileId) mode = "browser_default";
   }
-  if (mode === "active_in_browser") browserId = $("rule-browser").value;
+  if (mode === "active_in_browser") {
+    browserId = $("rule-browser").value;
+    if (!browserId) throw new Error(t("error.selectBrowser"));
+  }
   const name = $("rule-name").value.trim();
   if (!name) throw new Error(t("error.enterRuleName"));
   return {
@@ -212,9 +238,9 @@ function formRule() {
     order: state.selectedRuleId ? state.snapshot.config.rules.findIndex((rule) => rule.id === state.selectedRuleId) : state.snapshot.config.rules.length,
     matcher: { source_app: matcherPayload($("rule-source").value), domain: matcherPayload($("rule-domain").value) },
     target: { mode, browser_id: browserId || null, profile_id: profileId || null },
-    enforcement: mode === "ask" ? "prefer" : $("rule-enforcement").value,
-    fallback_scope: mode === "ask" || $("rule-enforcement").value === "force" ? "none" : $("rule-fallback").value,
-    unavailable_action: mode === "ask" ? "ask" : $("rule-unavailable").value
+    enforcement: mode === "ask" || mode === "browser_default" ? "prefer" : $("rule-enforcement").value,
+    fallback_scope: mode === "ask" || mode === "browser_default" || $("rule-enforcement").value === "force" ? "none" : $("rule-fallback").value,
+    unavailable_action: mode === "ask" ? "ask" : mode === "browser_default" ? "fail" : $("rule-unavailable").value
   };
 }
 
@@ -283,6 +309,7 @@ document.querySelectorAll(".nav-item").forEach((button) => button.addEventListen
   document.querySelector(`.page[data-page="${button.dataset.page}"]`).classList.add("active");
 }));
 $("rule-mode").addEventListener("change", updateModeFields);
+$("rule-profile").addEventListener("change", updateModeFields);
 $("rule-enforcement").addEventListener("change", updateModeFields);
 $("rule-form").addEventListener("submit", saveRule);
 $("add-rule").addEventListener("click", openNewRule);

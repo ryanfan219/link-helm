@@ -54,14 +54,17 @@ pub fn handle_opened_url(app: &AppHandle, url: url::Url) {
     }
 }
 
-pub fn handle_url_args(app: &AppHandle, args: impl IntoIterator<Item = String>) {
+pub fn handle_url_args(app: &AppHandle, args: impl IntoIterator<Item = String>) -> bool {
+    let mut handled_url = false;
     for url in args.into_iter().filter_map(|argument| {
         url::Url::parse(&argument)
             .ok()
             .filter(|url| matches!(url.scheme(), "http" | "https"))
     }) {
+        handled_url = true;
         handle_opened_url(app, url);
     }
+    handled_url
 }
 
 #[cfg(target_os = "macos")]

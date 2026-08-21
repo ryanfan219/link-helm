@@ -6,6 +6,7 @@ use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use gio::prelude::AppInfoExt;
 use platform_api::{
     BrowserOpenIntent, ExecutionReceipt, PlatformAdapter, PlatformError, PlatformEventSink,
     PlatformQuery,
@@ -80,6 +81,24 @@ impl LinuxPlatformAdapter {
     }
 
     pub fn open_default_browser_settings(&self) -> Result<(), PlatformError> {
+        let settings_commands: &[(&str, &[&str])] = &[
+            ("gnome-control-center", &["default-apps"]),
+            ("systemsettings6", &["kcm_componentchooser"]),
+            ("systemsettings5", &["kcm_componentchooser"]),
+            ("systemsettings", &["kcm_componentchooser"]),
+            ("exo-preferred-applications", &[]),
+            ("mate-default-applications-properties", &[]),
+        ];
+        for &(program, args) in settings_commands {
+            if find_executable(program).is_some() {
+                Command::new(program).args(args).spawn().map_err(|error| {
+                    PlatformError::Failed(format!(
+                        "cannot open default applications settings with {program}: {error}"
+                    ))
+                })?;
+                return Ok(());
+            }
+        }
         Err(PlatformError::Unsupported)
     }
 
@@ -146,14 +165,13 @@ impl LinuxPlatformAdapter {
 impl PlatformQuery for LinuxPlatformAdapter {
     fn browser_data_dir(&self, browser_id: &BrowserId) -> Option<PathBuf> {
         let config = config_home();
-        let relative = match browser_id.as_str() {
-            "com.google.Chrome" => "google-chrome",
-            "com.microsoft.edgemac" => "microsoft-edge",
-            "com.brave.Browser" => "BraveSoftware/Brave-Browser",
-            "org.mozilla.firefox" => "mozilla/firefox",
-            _ => return None,
-        };
-        Some(config.join(relative))
+        match browser_id.as_str() {
+            "com.google.Chrome" => Some(config.join("google-chrome")),
+            "com.microsoft.edgemac" => Some(config.join("microsoft-edge")),
+            "com.brave.Browser" => Some(config.join("BraveSoftware/Brave-Browser")),
+            "org.mozilla.firefox" => Some(firefox_data_dir()),
+            _ => None,
+        }
     }
 
     fn list_profile_dirs(&self, data_dir: &Path) -> Vec<PathBuf> {
@@ -246,6 +264,13 @@ fn run_xdg_mime(desktop_file: &str, mime: &str) -> Result<(), PlatformError> {
     run_command("xdg-mime", &["default", desktop_file, mime]).map(|_| ())
 }
 fn xdg_handler(scheme: &str) -> Option<String> {
+    let uri_scheme = scheme.strip_prefix("x-scheme-handler/").unwrap_or(scheme);
+    gio::AppInfo::default_for_uri_scheme(uri_scheme)
+        .and_then(|app| app.id())
+        .map(|id| id.to_string())
+        .or_else(|| xdg_mime_handler(scheme))
+}
+fn xdg_mime_handler(scheme: &str) -> Option<String> {
     command_stdout("xdg-mime", &["query", "default", scheme])
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty())
@@ -264,6 +289,19 @@ fn process_browser_id(pid: u32) -> Option<BrowserId> {
         _ => return None,
     };
     Some(BrowserId::new(id))
+}
+fn firefox_data_dir() -> PathBuf {
+    let home = home_dir();
+    let candidates = [
+        home.join("snap/firefox/common/.mozilla/firefox"),
+        home.join(".var/app/org.mozilla.firefox/.mozilla/firefox"),
+        home.join(".mozilla/firefox"),
+    ];
+    candidates
+        .iter()
+        .find(|path| path.join("profiles.ini").is_file())
+        .cloned()
+        .unwrap_or_else(|| home.join(".mozilla/firefox"))
 }
 fn firefox_default_profile(data_dir: &Path) -> Option<String> {
     let content = std::fs::read_to_string(data_dir.join("profiles.ini")).ok()?;

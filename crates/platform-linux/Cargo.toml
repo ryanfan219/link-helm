@@ -9,3 +9,6 @@ platform-api = { path = "../platform-api" }
 router-model = { path = "../router-model" }
 serde = { workspace = true }
 serde_json = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+gio = "0.18"

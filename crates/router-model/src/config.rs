@@ -9,6 +9,7 @@ pub const SCHEMA_VERSION: u32 = 1;
 #[serde(rename_all = "snake_case")]
 pub enum TargetMode {
     SpecifiedProfile,
+    BrowserDefault,
     ActiveInBrowser,
     GloballyActive,
     Ask,
@@ -138,6 +139,8 @@ pub enum ConfigError {
     ForceCannotFallback(String),
     #[error("rule {0}: SpecifiedProfile requires both browser_id and profile_id")]
     SpecifiedProfileRequiresIdentity(String),
+    #[error("rule {0}: BrowserDefault requires browser_id")]
+    BrowserDefaultRequiresBrowser(String),
     #[error("rule {0}: ActiveInBrowser requires browser_id")]
     ActiveInBrowserRequiresBrowser(String),
 }
@@ -169,6 +172,11 @@ impl RouteRule {
                     && self.fallback_scope != FallbackScope::None
                 {
                     return Err(ConfigError::ForceCannotFallback(id));
+                }
+            }
+            TargetMode::BrowserDefault => {
+                if self.target.browser_id.is_none() {
+                    return Err(ConfigError::BrowserDefaultRequiresBrowser(id));
                 }
             }
             TargetMode::ActiveInBrowser => {
