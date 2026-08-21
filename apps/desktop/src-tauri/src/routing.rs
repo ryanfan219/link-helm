@@ -80,6 +80,17 @@ fn own_application_id(_app: &AppHandle) -> String {
         .unwrap_or_default()
 }
 
+#[cfg(target_os = "linux")]
+fn own_application_id(_app: &AppHandle) -> String {
+    std::env::current_exe()
+        .ok()
+        .and_then(|path| {
+            path.file_name()
+                .map(|name| name.to_string_lossy().into_owned())
+        })
+        .unwrap_or_default()
+}
+
 fn source_application_or_unknown(candidate: Option<String>, own_bundle_id: &str) -> String {
     candidate
         .filter(|bundle_id| !bundle_id.is_empty() && bundle_id != own_bundle_id)

@@ -30,3 +30,7 @@ platform-macos = { path = "../../../crates/platform-macos" }
 [target.'cfg(target_os = "windows")'.dependencies]
 platform-windows = { path = "../../../crates/platform-windows" }
 tauri-plugin-single-instance = "2.4.3"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+platform-linux = { path = "../../../crates/platform-linux" }
+tauri-plugin-single-instance = "2.4.3"

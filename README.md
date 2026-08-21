@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md) | [Website](https://ryanfan219.github.io/link-helm/)
 
-Link Helm is a browser identity router for macOS and Windows. It receives HTTP and HTTPS links from the system and routes them to a specific browser Profile according to the source application, domain, and your rules. This keeps work accounts, personal accounts, and other browsing contexts separated.
+Link Helm is a browser identity router for macOS, Windows, and Linux. It receives HTTP and HTTPS links from the system and routes them to a specific browser Profile according to the source application, domain, and your rules. This keeps work accounts, personal accounts, and other browsing contexts separated.
 
 For example, Link Helm can:
 
@@ -11,7 +11,7 @@ For example, Link Helm can:
 - Ask which browser identity to use when no rule matches.
 - Pause automatic routing or show the identity selector for only the next link.
 
-Link Helm is built with Rust and Tauri 2 and targets macOS 13 or later and Windows 10/11 x64.
+Link Helm is built with Rust and Tauri 2 and targets macOS 13 or later, Windows 10/11 x64, and Linux desktops using XDG conventions.
 
 ## Compatibility Status
 
@@ -19,11 +19,11 @@ Link Helm is built with Rust and Tauri 2 and targets macOS 13 or later and Windo
 | --- | --- | --- |
 | macOS | Chrome, Edge, Brave, Firefox | Validated |
 | Windows 10/11 x64 | Chrome, Edge, Brave, Firefox | Validated |
-| Linux | All browsers | Planned |
+| Linux (X11/XDG) | Chrome, Edge, Brave, Firefox | Supported |
 
 ## Intended Audience
 
-- macOS and Windows users who want to select browser Profiles automatically by application and domain.
+- macOS, Windows, and Linux users who want to select browser Profiles automatically by application and domain.
 - Rust and Tauri developers who want to build Link Helm from source, change its routing behavior, or add browser adapters.
 
 ## Features
@@ -40,10 +40,12 @@ Link Helm is built with Rust and Tauri 2 and targets macOS 13 or later and Windo
 
 Building Link Helm from source requires:
 
-- macOS 13 or later, or Windows 10/11 x64.
+- macOS 13 or later, Windows 10/11 x64, or a Linux desktop with XDG utilities.
 - A [stable Rust toolchain](https://www.rust-lang.org/tools/install).
-- Xcode Command Line Tools on macOS, or Visual Studio Build Tools with the Desktop development with C++ workload on Windows.
+- Xcode Command Line Tools on macOS, Visual Studio Build Tools with the Desktop development with C++ workload on Windows, or Rust plus WebKitGTK/Tauri prerequisites on Linux.
 - Tauri CLI 2.
+
+On Linux, install `xdg-utils` and the WebKitGTK development package supplied by your distribution. Foreground browser detection uses X11 `_NET_ACTIVE_WINDOW` and `/proc`; Wayland compositors may provide reduced source-application detection.
 
 On macOS, install Xcode Command Line Tools:
 
@@ -202,6 +204,7 @@ The project is organized as a Cargo workspace:
 | `crates/platform-api` | Platform capability interfaces |
 | `crates/platform-macos` | Launch Services, Accessibility, and macOS execution |
 | `crates/platform-windows` | Win32 process discovery, registry integration, and Windows execution |
+| `crates/platform-linux` | XDG handlers, X11 foreground discovery, and Linux execution |
 | `crates/config-store` | Configuration loading, validation, and atomic writes |
 | `apps/desktop/dist` | Settings UI, identity selector, and localization resources |
 | `apps/desktop/src-tauri` | Tauri commands, tray menu, windows, and desktop state |
@@ -213,6 +216,7 @@ Common extension points:
 - Browser support: implement Profile discovery and opening behavior in `browser-adapters`, using platform capabilities through `platform-api`.
 - macOS integration: edit `platform-macos` and keep platform details out of the core routing modules.
 - Windows integration: edit `platform-windows` and keep registry and Win32 details out of the core routing modules.
+- Linux integration: edit `platform-linux`; keep XDG, X11, and `/proc` details out of the core routing modules.
 - Desktop commands: register commands in `apps/desktop/src-tauri/src/commands.rs` and expose them explicitly through the Tauri handler in `lib.rs`.
 
 Before submitting changes, run:
@@ -256,7 +260,7 @@ Confirm that Link Helm is the default HTTP and HTTPS handler. During development
 
 ### Active Profile tracking is unreliable
 
-On macOS, check and grant Accessibility permission in settings. Windows foreground-process observation does not require this permission.
+On macOS, check and grant Accessibility permission in settings. Windows foreground-process observation does not require this permission. On Linux, X11 foreground detection requires `xprop`; Wayland sessions may need an explicit source application rule.
 
 ## Configuration and Privacy
 

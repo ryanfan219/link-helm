@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-Link Helm 是一款面向 macOS 和 Windows 的浏览器身份路由工具。它接收系统中的 HTTP/HTTPS 链接，根据来源应用、域名和自定义规则，将链接发送到指定浏览器及对应的 Profile，避免工作账号、个人账号和不同使用场景混在同一个浏览器身份中。
+Link Helm 是一款面向 macOS、Windows 和 Linux 的浏览器身份路由工具。它接收系统中的 HTTP/HTTPS 链接，根据来源应用、域名和自定义规则，将链接发送到指定浏览器及对应的 Profile，避免工作账号、个人账号和不同使用场景混在同一个浏览器身份中。
 
 例如，你可以让 Link Helm：
 
@@ -11,7 +11,7 @@ Link Helm 是一款面向 macOS 和 Windows 的浏览器身份路由工具。它
 - 对未匹配的链接询问本次使用哪个浏览器身份。
 - 暂停自动路由，或只让下一个链接打开身份选择器。
 
-Link Helm 使用 Rust 和 Tauri 2 构建，面向 macOS 13 及以上版本和 Windows 10/11 x64。
+Link Helm 使用 Rust 和 Tauri 2 构建，面向 macOS 13 及以上版本、Windows 10/11 x64，以及遵循 XDG 规范的 Linux 桌面。
 
 ## 兼容性状态
 
@@ -19,11 +19,11 @@ Link Helm 使用 Rust 和 Tauri 2 构建，面向 macOS 13 及以上版本和 Wi
 | --- | --- | --- |
 | macOS | Chrome、Edge、Brave、Firefox | 已验证 |
 | Windows 10/11 x64 | Chrome、Edge、Brave、Firefox | 已验证 |
-| Linux | 所有浏览器 | 计划中 |
+| Linux（X11/XDG） | Chrome、Edge、Brave、Firefox | 已支持 |
 
 ## 适用读者
 
-- 希望按应用和域名自动选择浏览器 Profile 的 macOS 和 Windows 用户。
+- 希望按应用和域名自动选择浏览器 Profile 的 macOS、Windows 和 Linux 用户。
 - 希望从源码构建 Link Helm、修改路由行为或增加浏览器适配器的 Rust/Tauri 开发者。
 
 ## 主要功能
@@ -40,10 +40,12 @@ Link Helm 使用 Rust 和 Tauri 2 构建，面向 macOS 13 及以上版本和 Wi
 
 从源码构建 Link Helm 需要：
 
-- macOS 13 或更高版本，或 Windows 10/11 x64。
+- macOS 13 或更高版本、Windows 10/11 x64，或安装了 XDG 工具的 Linux 桌面。
 - [Rust stable toolchain](https://www.rust-lang.org/tools/install)。
-- macOS 需要 Xcode Command Line Tools；Windows 需要 Visual Studio Build Tools，并安装 Desktop development with C++ 工作负载。
+- macOS 需要 Xcode Command Line Tools；Windows 需要 Visual Studio Build Tools，并安装 Desktop development with C++ 工作负载；Linux 需要 Rust、WebKitGTK/Tauri 依赖和 `xdg-utils`。
 - Tauri CLI 2。
+
+Linux 前台浏览器检测依赖 X11 的 `_NET_ACTIVE_WINDOW` 与 `/proc`；Wayland 合成器可能只能提供较少的来源应用信息。
 
 在 macOS 上安装 Xcode Command Line Tools：
 
@@ -177,6 +179,7 @@ git checkout -b feature/my-change
 | `crates/platform-api` | 平台能力抽象接口 |
 | `crates/platform-macos` | Launch Services、Accessibility 和 macOS 执行逻辑 |
 | `crates/platform-windows` | Win32 进程发现、注册表集成和 Windows 执行逻辑 |
+| `crates/platform-linux` | XDG 协议处理、X11 前台发现和 Linux 执行逻辑 |
 | `crates/config-store` | 配置读取、校验和原子写入 |
 | `apps/desktop/dist` | 设置页、身份选择器和国际化资源 |
 | `apps/desktop/src-tauri` | Tauri 命令、托盘菜单、窗口和桌面应用状态 |
@@ -188,6 +191,7 @@ git checkout -b feature/my-change
 - 增加浏览器支持：在 `browser-adapters` 中实现 Profile 发现和打开策略，并通过 `platform-api` 调用平台能力。
 - 修改 macOS 集成：编辑 `platform-macos`，避免把平台细节泄漏到核心路由模块。
 - 修改 Windows 集成：编辑 `platform-windows`，避免把注册表和 Win32 细节泄漏到核心路由模块。
+- 修改 Linux 集成：编辑 `platform-linux`，避免把 XDG、X11 和 `/proc` 细节泄漏到核心路由模块。
 - 增加桌面命令：在 `apps/desktop/src-tauri/src/commands.rs` 注册命令，并在 `lib.rs` 的 Tauri handler 中显式暴露。
 
 提交改动前可运行：
@@ -231,7 +235,7 @@ cargo tauri --version
 
 ### 活动 Profile 跟踪不稳定
 
-macOS 上请在设置中检查并授予 Accessibility / 辅助功能权限。Windows 的前台进程观察不需要该权限。
+macOS 上请在设置中检查并授予 Accessibility / 辅助功能权限。Windows 的前台进程观察不需要该权限。Linux 的 X11 前台检测需要 `xprop`；Wayland 会话可能需要显式配置来源应用规则。
 
 ## 配置与隐私
 

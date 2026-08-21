@@ -30,7 +30,7 @@ fn start_foreground_browser_observer(app: tauri::AppHandle) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default();
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
     let builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
         routing::handle_url_args(app, args);
     }));
@@ -74,7 +74,7 @@ pub fn run() {
                 window.set_title(locale.settings_title())?;
             }
             start_foreground_browser_observer(app.handle().clone());
-            #[cfg(target_os = "windows")]
+            #[cfg(any(target_os = "windows", target_os = "linux"))]
             routing::handle_url_args(app.handle(), std::env::args());
             Ok(())
         })
