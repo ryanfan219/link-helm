@@ -72,27 +72,59 @@ pub fn set_locale(app: &AppHandle, locale: AppLocale) -> tauri::Result<()> {
 }
 
 pub fn setup(app: &App, locale: AppLocale) -> tauri::Result<()> {
-    let menu = menu(app, locale, false, false)?;
+    let initial_menu = menu(app, locale, false, false)?;
 
     TrayIconBuilder::with_id(TRAY_ID)
         .icon(tauri::image::Image::from_bytes(TRAY_ICON)?)
         .icon_as_template(cfg!(target_os = "macos"))
         .tooltip("Link Helm")
-        .menu(&menu)
+        .menu(&initial_menu)
         .show_menu_on_left_click(true)
         .on_menu_event(|app, event| match event.id().as_ref() {
             OPEN_SETTINGS => show_settings(app),
             ASK_NEXT => {
                 if let Some(state) = app.try_state::<AppState>() {
-                    if let Ok(mut service) = state.service.lock() {
+                    let (ask_next, paused, locale) = {
+                        let mut service = match state.service.lock() {
+                            Ok(s) => s,
+                            Err(_) => return,
+                        };
                         service.ask_next = !service.ask_next;
+                        let locale = state
+                            .preferences
+                            .lock()
+                            .ok()
+                            .map(|p| p.locale())
+                            .unwrap_or(AppLocale::English);
+                        (service.ask_next, service.paused, locale)
+                    };
+                    if let Some(tray) = app.tray_by_id(TRAY_ID) {
+                        if let Ok(new_menu) = menu(app, locale, ask_next, paused) {
+                            let _ = tray.set_menu(Some(new_menu));
+                        }
                     }
                 }
             }
             PAUSE => {
                 if let Some(state) = app.try_state::<AppState>() {
-                    if let Ok(mut service) = state.service.lock() {
+                    let (ask_next, paused, locale) = {
+                        let mut service = match state.service.lock() {
+                            Ok(s) => s,
+                            Err(_) => return,
+                        };
                         service.paused = !service.paused;
+                        let locale = state
+                            .preferences
+                            .lock()
+                            .ok()
+                            .map(|p| p.locale())
+                            .unwrap_or(AppLocale::English);
+                        (service.ask_next, service.paused, locale)
+                    };
+                    if let Some(tray) = app.tray_by_id(TRAY_ID) {
+                        if let Ok(new_menu) = menu(app, locale, ask_next, paused) {
+                            let _ = tray.set_menu(Some(new_menu));
+                        }
                     }
                 }
             }

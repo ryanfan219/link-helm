@@ -387,7 +387,9 @@ fn test_open_disposition() -> OpenDisposition {
 mod tests {
     use router_model::browser::OpenDisposition;
 
-    use super::{test_open_disposition, FocusReturnTracker};
+    use super::test_open_disposition;
+    #[cfg(target_os = "macos")]
+    use super::FocusReturnTracker;
 
     #[test]
     fn profile_test_prefers_an_existing_browser_managed_window() {
@@ -395,6 +397,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(target_os = "macos")]
     fn focus_is_not_restored_before_system_settings_has_been_seen() {
         let mut tracker = FocusReturnTracker::default();
 
@@ -403,6 +406,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(target_os = "macos")]
     fn focus_is_restored_after_leaving_system_settings() {
         let mut tracker = FocusReturnTracker::default();
 
