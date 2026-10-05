@@ -34,6 +34,11 @@ use winreg::RegKey;
 
 const URL_PROG_ID: &str = "LinkHelm.Url";
 const REGISTERED_APP_NAME: &str = "Link Helm";
+/// Node name under `Software\Clients\StartMenuInternet`. Windows keys its
+/// default-browser machinery off entries here (not just the generic
+/// `RegisteredApplications` list), so this must exist for Windows to ever
+/// actually commit a `UserChoice` change to Link Helm's ProgId.
+const CLIENT_KEY: &str = "LinkHelm";
 const DEFAULT_APPS_URI: &str = "ms-settings:defaultapps?registeredAppUser=Link%20Helm";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -63,8 +68,8 @@ impl WindowsPlatformAdapter {
         let http_handler = user_choice_handler("http");
         let https_handler = user_choice_handler("https");
         SystemIntegrationStatus {
-            is_default_browser: http_handler.as_deref() == Some(URL_PROG_ID)
-                && https_handler.as_deref() == Some(URL_PROG_ID),
+            is_default_browser: is_registered_prog_id(http_handler.as_deref())
+                && is_registered_prog_id(https_handler.as_deref()),
             http_handler,
             https_handler,
             accessibility_trusted: true,
@@ -313,7 +318,7 @@ fn firefox_default_profile(data_dir: &Path) -> Option<String> {
 }
 
 fn user_choice_handler(scheme: &str) -> Option<String> {
-    RegKey::predef(HKEY_CURRENT_USER)
+    let raw: String = RegKey::predef(HKEY_CURRENT_USER)
         .open_subkey_with_flags(
             format!(
                 r"Software\Microsoft\Windows\Shell\Associations\UrlAssociations\{scheme}\UserChoice"
@@ -322,7 +327,21 @@ fn user_choice_handler(scheme: &str) -> Option<String> {
         )
         .ok()?
         .get_value("ProgId")
-        .ok()
+        .ok()?;
+    // Some Windows builds / third-party tools leave a trailing NUL or
+    // surrounding whitespace on the stored value; normalize before comparing.
+    let trimmed = raw.trim_matches(char::from(0)).trim();
+    (!trimmed.is_empty()).then(|| trimmed.to_string())
+}
+
+/// ProgIds are case-insensitive in Windows (they are COM identifiers), so the
+/// comparison against our registered `URL_PROG_ID` must not be case-sensitive.
+/// A strict `==` comparison previously caused `is_default_browser` to report
+/// `false` even when Windows' Default Apps settings showed Link Helm as the
+/// active default, whenever the stored ProgId differed only in casing (e.g.
+/// after an older build registered a differently-cased ProgId).
+fn is_registered_prog_id(handler: Option<&str>) -> bool {
+    handler.is_some_and(|prog_id| prog_id.eq_ignore_ascii_case(URL_PROG_ID))
 }
 
 fn register_url_handler() -> Result<(), PlatformError> {
@@ -354,7 +373,7 @@ fn register_url_handler() -> Result<(), PlatformError> {
         .map_err(registry_error)?;
 
     let (capabilities, _) = hkcu
-        .create_subkey(r"Software\LinkHelm\Capabilities")
+        .create_subkey(format!(r"Software\Clients\StartMenuInternet\{CLIENT_KEY}\Capabilities"))
         .map_err(registry_error)?;
     capabilities
         .set_value("ApplicationName", &REGISTERED_APP_NAME)
@@ -371,20 +390,59 @@ fn register_url_handler() -> Result<(), PlatformError> {
             &"Routes web links to browser profiles",
         )
         .map_err(registry_error)?;
-    let (associations, _) = capabilities
+    let (url_associations, _) = capabilities
         .create_subkey("UrlAssociations")
         .map_err(registry_error)?;
-    associations
+    url_associations
         .set_value("http", &URL_PROG_ID)
         .map_err(registry_error)?;
-    associations
+    url_associations
         .set_value("https", &URL_PROG_ID)
         .map_err(registry_error)?;
+    // Windows only treats an app as a genuine default-browser candidate (and
+    // will only actually commit a UserChoice change for http/https) once it
+    // also owns the common web file-type associations. Without these, the
+    // Default Apps UI can let a user "select" the app while silently leaving
+    // UserChoice pointed at the previous browser (e.g. MSEdgeHTM).
+    let (file_associations, _) = capabilities
+        .create_subkey("FileAssociations")
+        .map_err(registry_error)?;
+    for extension in [".htm", ".html"] {
+        file_associations
+            .set_value(extension, &URL_PROG_ID)
+            .map_err(registry_error)?;
+    }
+
+    // Mirror the client's launch metadata at the StartMenuInternet root; this
+    // is what identifies Link Helm as a browser client to Windows, separate
+    // from the generic RegisteredApplications entry.
+    let (client_root, _) = hkcu
+        .create_subkey(format!(r"Software\Clients\StartMenuInternet\{CLIENT_KEY}"))
+        .map_err(registry_error)?;
+    client_root
+        .set_value("", &REGISTERED_APP_NAME)
+        .map_err(registry_error)?;
+    let (client_icon, _) = client_root
+        .create_subkey("DefaultIcon")
+        .map_err(registry_error)?;
+    client_icon
+        .set_value("", &format!(r#""{}",0"#, executable.display()))
+        .map_err(registry_error)?;
+    let (client_open_command, _) = client_root
+        .create_subkey(r"shell\open\command")
+        .map_err(registry_error)?;
+    client_open_command
+        .set_value("", &command)
+        .map_err(registry_error)?;
+
     let (registered, _) = hkcu
         .create_subkey(r"Software\RegisteredApplications")
         .map_err(registry_error)?;
     registered
-        .set_value(REGISTERED_APP_NAME, &r"Software\LinkHelm\Capabilities")
+        .set_value(
+            REGISTERED_APP_NAME,
+            &format!(r"Software\Clients\StartMenuInternet\{CLIENT_KEY}\Capabilities"),
+        )
         .map_err(registry_error)?;
 
     unsafe {

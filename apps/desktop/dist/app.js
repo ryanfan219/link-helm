@@ -34,6 +34,16 @@ function allProfiles() {
   return (state.snapshot?.browsers ?? []).flatMap((browser) => browser.profiles.map((profile) => ({ browser, profile })));
 }
 
+function currentHandlerLabel(system) {
+  const unknown = t("status.unknown");
+  const http = system.http_handler || unknown;
+  const https = system.https_handler || unknown;
+  // Surface both protocol handlers when they disagree so a partial/stale
+  // Windows default-apps selection (e.g. https switched but http left on the
+  // previous browser) is visible instead of silently showing only http.
+  return http === https ? http : `${http} / ${https}`;
+}
+
 function encodeProfileValue(browserId, profileId) {
   return JSON.stringify([browserId, profileId]);
 }
@@ -102,7 +112,7 @@ function render() {
   $("ask-next").checked = snapshot.ask_next;
   $("routing-dot").classList.toggle("paused", snapshot.paused);
   $("routing-label").textContent = t(snapshot.paused ? "status.routingPaused" : "status.routingActive");
-  $("default-status").textContent = snapshot.system.is_default_browser ? t("status.default") : t("status.current", { value: snapshot.system.http_handler || t("status.unknown") });
+  $("default-status").textContent = snapshot.system.is_default_browser ? t("status.default") : t("status.current", { value: currentHandlerLabel(snapshot.system) });
   $("default-status").className = `badge ${snapshot.system.is_default_browser ? "success" : "neutral"}`;
   $("set-default").disabled = snapshot.system.is_default_browser;
   $("rules-inactive").hidden = snapshot.system.is_default_browser;
