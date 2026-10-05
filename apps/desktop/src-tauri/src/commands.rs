@@ -379,6 +379,24 @@ pub fn cancel_pending(state: State<'_, AppState>, id: u64) -> Result<(), String>
         .cancel_pending(id)
 }
 
+/// Closes the identity-selector webview window.
+///
+/// The frontend must call this instead of the DOM `window.close()`: in a
+/// Tauri webview, `window.close()` only runs page teardown (unloading the
+/// document) and does not destroy the native window. That left a blank
+/// white selector window stuck open after the last pending route was
+/// resolved, and because Tauri still considered that window to exist,
+/// `show_selector` kept reusing it instead of creating a fresh one on the
+/// next unrouted link — silently queuing up pending routes behind a
+/// non-functional window until it was finally closed and reopened.
+#[tauri::command]
+pub fn close_selector_window(app: AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("selector") {
+        window.close().map_err(|error| error.to_string())?;
+    }
+    Ok(())
+}
+
 fn test_open_disposition() -> OpenDisposition {
     OpenDisposition::ExistingWindow
 }

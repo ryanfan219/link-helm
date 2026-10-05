@@ -63,6 +63,7 @@ pub fn run() {
             commands::get_selector_state,
             commands::choose_pending,
             commands::cancel_pending,
+            commands::close_selector_window,
         ])
         .setup(|app| {
             let data_dir = app.path().app_data_dir()?;

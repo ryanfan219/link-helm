@@ -4,7 +4,12 @@ const escapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => 
 const t = (key, values) => window.LinkHelmI18n.t(key, values);
 
 function closeWindow() {
-  window.close();
+  // window.close() only unloads the page in a Tauri webview — it does not
+  // destroy the native window. That left a blank window stuck open and
+  // caused the backend to keep reusing it (and queuing further pending
+  // routes behind it) on the next unrouted link. Ask Rust to close it
+  // for real instead.
+  invoke("close_selector_window").catch(() => {});
 }
 
 async function initialize() {
